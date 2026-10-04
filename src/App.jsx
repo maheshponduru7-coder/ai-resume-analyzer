@@ -5,26 +5,127 @@ import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
 function App() {
-
   const [file, setFile] = useState(null);
   const [resumeText, setResumeText] = useState("");
   const [jobDescription, setJobDescription] = useState("");
 
+  const [resumeSkills, setResumeSkills] = useState([]);
+  const [jobSkills, setJobSkills] = useState([]);
+  const [matchingSkills, setMatchingSkills] = useState([]);
+  const [missingSkills, setMissingSkills] = useState([]);
+  const [matchPercentage, setMatchPercentage] = useState(0);
+
+  // Extract text from PDF
+  const extractTextFromPDF = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+
+    const pdf = await pdfjsLib.getDocument({
+      data: arrayBuffer,
+    }).promise;
+
+    let text = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+
+      const pageText = content.items
+        .map((item) => item.str)
+        .join(" ");
+
+      text += pageText + "\n";
+    }
+
+    return text;
+  };
+
+  // Analyze resume
   const analyzeResume = (text) => {
-  const lines = text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line !== "");
+    const lines = text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line !== "");
 
-  // Detect name
-  const name = lines[0];
+    const name = lines[0] || "Unknown";
 
-  // Skills we want to check
+    const skillList = [
+      "Java",
+      "Python",
+      "C",
+      "C++",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "React",
+      "SQL",
+      "MySQL",
+      "Spring Boot",
+      "Git",
+      "GitHub",
+      "Data Structures",
+      "DSA",
+    ];
+
+    const skills = skillList.filter((skill) =>
+      text.toLowerCase().includes(skill.toLowerCase())
+    );
+
+    const educationKeywords = [
+      "B.Tech",
+      "B.E",
+      "Bachelor",
+      "B.Sc",
+      "M.Tech",
+      "M.E",
+      "M.Sc",
+      "Master",
+      "BCA",
+      "MCA",
+      "Computer Science",
+      "Engineering",
+    ];
+
+    const education = educationKeywords.filter((item) =>
+      text.toLowerCase().includes(item.toLowerCase())
+    );
+
+    const projectKeywords = [
+      "project",
+      "projects",
+      "developed",
+      "application",
+      "website",
+      "system",
+    ];
+
+    const projects = projectKeywords.filter((item) =>
+      text.toLowerCase().includes(item.toLowerCase())
+    );
+
+    // Store resume skills
+    setResumeSkills(skills);
+
+    console.log("Name:", name);
+    console.log("Skills:", skills);
+    console.log("Education:", education);
+    console.log("Projects:", projects);
+
+    return {
+      name,
+      skills,
+      education,
+      projects,
+      lines,
+    };
+  };
+
+  // Analyze job description
+  const analyzeJobDescription = (text) => {
   const skillList = [
     "Java",
     "Python",
-    "C",
     "C++",
+    "C",
     "JavaScript",
     "HTML",
     "CSS",
@@ -35,278 +136,395 @@ function App() {
     "Git",
     "GitHub",
     "Data Structures",
-    "DSA"
+    "DSA",
   ];
 
-  // Find skills present in resume
-  const skills = skillList.filter((skill) =>
-    text.toLowerCase().includes(skill.toLowerCase())
+  const lowerText = text.toLowerCase();
+
+  // Detect skills from job description
+  const detectedJobSkills = skillList.filter((skill) => {
+    const lowerSkill = skill.toLowerCase();
+
+    if (skill === "C") {
+      return /\bc\b/.test(lowerText);
+    }
+
+    return lowerText.includes(lowerSkill);
+  });
+
+  // Find matching skills
+  const matched = detectedJobSkills.filter((skill) =>
+    resumeSkills.some(
+      (resumeSkill) =>
+        resumeSkill.toLowerCase() === skill.toLowerCase()
+    )
   );
-  const educationKeywords = [
-  "B.Tech",
-  "B.E",
-  "Bachelor",
-  "B.Sc",
-  "M.Tech",
-  "M.E",
-  "M.Sc",
-  "Master",
-  "BCA",
-  "MCA",
-  "Computer Science",
-  "Engineering"
-];
 
-const education = educationKeywords.filter((item) =>
-  text.toLowerCase().includes(item.toLowerCase())
-);
-const projectKeywords = [
-  "project",
-  "projects",
-  "developed",
-  "application",
-  "website",
-  "system"
-];
+  // Find missing skills
+  const missing = detectedJobSkills.filter(
+    (skill) =>
+      !resumeSkills.some(
+        (resumeSkill) =>
+          resumeSkill.toLowerCase() === skill.toLowerCase()
+      )
+  );
 
-const projects = projectKeywords.filter((item) =>
-  text.toLowerCase().includes(item.toLowerCase())
-);
+  // Calculate percentage
+  let percentage = 0;
 
-  console.log("Name:", name);
-  console.log("Skills:", skills);
-  console.log("Education:", education);
-  console.log("Projects:", projects);
-  console.log("Resume Lines:", lines);
-
-  return {
-    name,
-    skills,
-    lines
-  };
-};
-  const extractTextFromPDF = async (file) => {
-  const arrayBuffer = await file.arrayBuffer();
-
-  const pdf = await pdfjsLib.getDocument({
-    data: arrayBuffer,
-  }).promise;
-
-  let text = "";
-
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-
-    const pageText = content.items
-      .map((item) => item.str)
-      .join(" ");
-
-    text += pageText + "\n";
+  if (detectedJobSkills.length > 0) {
+    percentage = Math.round(
+      (matched.length / detectedJobSkills.length) * 100
+    );
   }
 
-  return text;
-};
+  // Update states
+  setJobSkills(detectedJobSkills);
+  setMatchingSkills(matched);
+  setMissingSkills(missing);
+  setMatchPercentage(percentage);
 
+  // Debug information
+  console.log("Job Skills:", detectedJobSkills);
+  console.log("Resume Skills:", resumeSkills);
+  console.log("Matching Skills:", matched);
+  console.log("Missing Skills:", missing);
+  console.log("Match Percentage:", percentage + "%");
+};
+  // Handle resume upload
   const handleFileChange = async (event) => {
-  const selectedFile = event.target.files[0];
+    const selectedFile = event.target.files[0];
 
-  if (!selectedFile) {
-    return;
-  }
+    if (!selectedFile) {
+      return;
+    }
 
-  setFile(selectedFile);
+    setFile(selectedFile);
 
-  if (selectedFile.type === "application/pdf") {
-    const text = await extractTextFromPDF(selectedFile);
-    setResumeText(text);
-    analyzeResume(text);
-    console.log("Resume Text:");
-    console.log(text);
-  }
-};
+    if (selectedFile.type === "application/pdf") {
+      try {
+        const text = await extractTextFromPDF(selectedFile);
+
+        setResumeText(text);
+
+        analyzeResume(text);
+
+        console.log("Resume Text:");
+        console.log(text);
+      } catch (error) {
+        console.error("Error extracting PDF:", error);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
 
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-10 py-6">
-        <h1 className="text-2xl font-bold">
-          Resume<span className="text-blue-400">AI</span>
-        </h1>
+      <nav className="border-b border-slate-800 bg-slate-950">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <h1 className="text-2xl font-bold text-blue-400">
+            ResumeAI
+          </h1>
 
-        <div className="flex gap-8 text-slate-300">
-          <a href="#" className="hover:text-white">Home</a>
-          <a href="#" className="hover:text-white">Features</a>
-          <a href="#" className="hover:text-white">About</a>
+          <div className="hidden gap-8 text-sm text-slate-300 md:flex">
+            <a href="#" className="hover:text-white">
+              Home
+            </a>
+
+            <a href="#features" className="hover:text-white">
+              Features
+            </a>
+
+            <a href="#about" className="hover:text-white">
+              About
+            </a>
+          </div>
         </div>
       </nav>
 
+      {/* Hero Section */}
+      <section className="px-6 py-16 text-center">
+        <div className="mx-auto max-w-4xl">
 
-      {/* Hero */}
-      <main className="flex flex-col items-center px-6 pt-20 text-center">
+          <h2 className="text-4xl font-bold tracking-tight md:text-6xl">
+            Make Your Resume{" "}
+            <span className="text-blue-400">
+              Job Ready
+            </span>
+          </h2>
 
-        <p className="mb-4 rounded-full bg-blue-500/10 px-4 py-2 text-sm text-blue-400">
-          AI-Powered Resume Analysis
-        </p>
-
-        <h2 className="max-w-4xl text-5xl font-bold leading-tight md:text-6xl">
-          Make Your Resume
-          <span className="text-blue-400"> Job Ready</span>
-        </h2>
-
-        <p className="mt-6 max-w-2xl text-lg text-slate-400">
-          Upload your resume and get AI-powered feedback,
-          skill analysis, and suggestions to improve your resume.
-        </p>
-
-
-        {/* Upload Box */}
-        <div className="mt-12 w-full max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 p-10">
-
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10 text-3xl">
-            📄
-          </div>
-
-          <h3 className="mt-6 text-2xl font-semibold">
-            Upload Your Resume
-          </h3>
-
-          <p className="mt-2 text-slate-400">
-            PDF or DOCX files supported
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-400">
+            Upload your resume, analyse your skills and compare them
+            with a job description.
           </p>
 
+          {/* Upload Box */}
+          <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 p-8">
 
-          {/* File Input */}
+            <h3 className="text-xl font-semibold">
+              Upload Your Resume
+            </h3>
 
-          <label className="mt-8 inline-block cursor-pointer rounded-lg bg-blue-500 px-8 py-3 font-semibold transition hover:bg-blue-600">
+            <p className="mt-2 text-sm text-slate-400">
+              Upload your PDF resume to begin analysis.
+            </p>
 
-            Choose Resume
+            <label
+              htmlFor="resume-upload"
+              className="mt-6 inline-block cursor-pointer rounded-lg bg-blue-600 px-6 py-3 font-medium transition hover:bg-blue-700"
+            >
+              Choose Resume
+            </label>
 
             <input
+              id="resume-upload"
               type="file"
-              accept=".pdf,.docx"
+              accept=".pdf"
               onChange={handleFileChange}
               className="hidden"
             />
 
-          </label>
+            {/* Selected File */}
+            {file && (
+              <div className="mt-6 rounded-lg border border-slate-700 bg-slate-800 p-4">
+                <p className="text-green-400">
+                  ✓ Resume selected
+                </p>
 
+                <p className="mt-1 text-sm text-slate-300">
+                  {file.name}
+                </p>
+              </div>
+            )}
+          </div>
 
-          {/* Selected File */}
+          {/* Extracted Resume Text */}
+          {resumeText && (
+            <div className="mt-8 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
 
-          {file && (
+              <h2 className="mb-4 text-xl font-semibold">
+                Extracted Resume Text
+              </h2>
 
-            <div className="mt-6 rounded-lg border border-slate-700 bg-slate-800 p-4">
-
-              <p className="text-green-400">
-                ✓ Resume selected
-              </p>
-
-              <p className="mt-1 text-sm text-slate-300">
-                {file.name}
-              </p>
+              <div className="max-h-96 overflow-y-auto rounded-lg bg-slate-800 p-4">
+                <p className="whitespace-pre-wrap text-sm leading-6 text-slate-300">
+                  {resumeText}
+                </p>
+              </div>
 
             </div>
-
           )}
-          {resumeText && (
-  <div className="mt-6 rounded-lg border border-slate-700 bg-slate-900 p-6 text-left">
-    <h2 className="mb-4 text-xl font-semibold text-white">
-      Extracted Resume Text
+
+          {/* Job Description */}
+          <div className="mt-8 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+
+            <h2 className="mb-3 text-xl font-semibold">
+              Job Description
+            </h2>
+
+            <p className="mb-4 text-sm text-slate-400">
+              Paste the job description you want to compare with your resume.
+            </p>
+
+            <textarea
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste the job description here..."
+              rows="8"
+              className="w-full resize-none rounded-lg border border-slate-700 bg-slate-800 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+            />
+
+            <button
+              onClick={() => analyzeJobDescription(jobDescription)}
+              className="mt-4 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
+            >
+              Analyze Job
+            </button>
+
+          </div>
+
+          {/* Matching Skills */}
+          {matchingSkills.length > 0 && (
+            <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+
+              <h2 className="mb-4 text-xl font-semibold">
+                Matching Skills
+              </h2>
+
+              <div className="flex flex-wrap gap-2">
+                {matchingSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-full bg-green-900 px-3 py-1 text-sm text-green-300"
+                  >
+                    ✓ {skill}
+                  </span>
+                ))}
+              </div>
+
+            </div>
+          )}
+
+          {/* Missing Skills */}
+          {missingSkills.length > 0 && (
+            <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+
+              <h2 className="mb-4 text-xl font-semibold">
+                Missing Skills
+              </h2>
+
+              <div className="flex flex-wrap gap-2">
+                {missingSkills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="rounded-full bg-red-900 px-3 py-1 text-sm text-red-300"
+                  >
+                    ✗ {skill}
+                  </span>
+                ))}
+              </div>
+
+            </div>
+          )}
+          {jobSkills.length > 0 && (
+  <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-6 text-center">
+
+    <h2 className="mb-3 text-xl font-semibold text-white">
+      Resume Match Score
     </h2>
 
-    <div className="max-h-96 overflow-y-auto rounded-lg bg-slate-800 p-4">
-      <p className="whitespace-pre-wrap text-sm leading-6 text-slate-300">
-        {resumeText}
+    <p className="text-5xl font-bold text-blue-400">
+      {matchPercentage}%
+    </p>
+
+    <p className="mt-3 text-sm text-slate-400">
+      {matchingSkills.length} out of {jobSkills.length} required skills
+      match your resume.
+    </p>
+
+    {matchPercentage >= 80 && (
+      <p className="mt-3 text-green-400">
+        Excellent match! Your resume matches most of the required skills.
       </p>
-    </div>
+    )}
+
+    {matchPercentage >= 50 && matchPercentage < 80 && (
+      <p className="mt-3 text-yellow-400">
+        Good match, but you can improve your resume by adding some missing skills.
+      </p>
+    )}
+
+    {matchPercentage < 50 && (
+      <p className="mt-3 text-red-400">
+        Your resume has several skill gaps for this job.
+      </p>
+    )}
+
   </div>
 )}
 
-      <div className="mt-8 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
-  <h2 className="mb-3 text-xl font-semibold text-white">
-    Job Description
+<div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+
+  <h2 className="mb-4 text-xl font-semibold">
+    Why This Score?
   </h2>
 
-  <p className="mb-4 text-sm text-slate-400">
-    Paste the job description you want to compare with your resume.
+  <p className="text-sm leading-6 text-slate-400">
+    Your score is calculated by comparing the skills detected in your
+    resume with the skills required in the job description.
   </p>
 
-  <textarea
-    value={jobDescription}
-    onChange={(e) => setJobDescription(e.target.value)}
-    placeholder="Paste the job description here..."
-    rows="8"
-    className="w-full resize-none rounded-lg border border-slate-700 bg-slate-800 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-  />
+  <div className="mt-5 space-y-3">
+
+    <p className="text-sm text-green-400">
+      ✓ {matchingSkills.length} skills found in your resume
+    </p>
+
+    <p className="text-sm text-red-400">
+      ✗ {missingSkills.length} skills missing from your resume
+    </p>
+
+    <p className="text-sm text-slate-400">
+      Total required skills: {jobSkills.length}
+    </p>
+
+  </div>
+
 </div>
 
-<button
-  onClick={() => console.log("Job Description:", jobDescription)}
-  className="mt-4 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
->
-  Analyze Job
-</button>
+        </div>
+      </section>
 
-          <p className="mt-4 text-sm text-slate-500">
-            Your resume will be analyzed securely
+      {/* Features */}
+      <section
+        id="features"
+        className="border-t border-slate-800 px-6 py-16"
+      >
+        <div className="mx-auto max-w-6xl">
+
+          <h2 className="text-center text-3xl font-bold">
+            Features
+          </h2>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+              <h3 className="text-lg font-semibold">
+                Resume Analysis
+              </h3>
+
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Extract important information and skills from your resume.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+              <h3 className="text-lg font-semibold">
+                Job Matching
+              </h3>
+
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Compare your resume skills with the requirements of a job.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
+              <h3 className="text-lg font-semibold">
+                Skill Gaps
+              </h3>
+
+              <p className="mt-3 text-sm leading-6 text-slate-400">
+                Identify important skills that are missing from your resume.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* About */}
+      <section
+        id="about"
+        className="border-t border-slate-800 px-6 py-16 text-center"
+      >
+        <div className="mx-auto max-w-3xl">
+
+          <h2 className="text-3xl font-bold">
+            About ResumeAI
+          </h2>
+
+          <p className="mt-4 leading-7 text-slate-400">
+            ResumeAI is a resume analysis project that helps students
+            understand how well their skills match a job description.
           </p>
 
         </div>
-
-
-        {/* Features */}
-
-        <div className="mt-20 grid w-full max-w-5xl gap-6 md:grid-cols-3">
-
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <div className="text-3xl">🎯</div>
-
-            <h3 className="mt-4 text-xl font-semibold">
-              Resume Score
-            </h3>
-
-            <p className="mt-2 text-slate-400">
-              Get a score based on important resume criteria.
-            </p>
-          </div>
-
-
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <div className="text-3xl">💡</div>
-
-            <h3 className="mt-4 text-xl font-semibold">
-              AI Suggestions
-            </h3>
-
-            <p className="mt-2 text-slate-400">
-              Discover areas where your resume can be improved.
-            </p>
-          </div>
-
-
-          <div className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-            <div className="text-3xl">💼</div>
-
-            <h3 className="mt-4 text-xl font-semibold">
-              Job Matching
-            </h3>
-
-            <p className="mt-2 text-slate-400">
-              Compare your skills with job requirements.
-            </p>
-          </div>
-
-        </div>
-
-      </main>
-
+      </section>
 
       {/* Footer */}
-
-      <footer className="mt-20 border-t border-slate-800 py-6 text-center text-sm text-slate-500">
-        © 2026 ResumeAI. Built with React & Tailwind CSS.
+      <footer className="border-t border-slate-800 px-6 py-6 text-center text-sm text-slate-500">
+        AI Resume Analyzer • Built with React
       </footer>
 
     </div>
