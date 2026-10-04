@@ -8,6 +8,83 @@ function App() {
 
   const [file, setFile] = useState(null);
   const [resumeText, setResumeText] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+
+  const analyzeResume = (text) => {
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line !== "");
+
+  // Detect name
+  const name = lines[0];
+
+  // Skills we want to check
+  const skillList = [
+    "Java",
+    "Python",
+    "C",
+    "C++",
+    "JavaScript",
+    "HTML",
+    "CSS",
+    "React",
+    "SQL",
+    "MySQL",
+    "Spring Boot",
+    "Git",
+    "GitHub",
+    "Data Structures",
+    "DSA"
+  ];
+
+  // Find skills present in resume
+  const skills = skillList.filter((skill) =>
+    text.toLowerCase().includes(skill.toLowerCase())
+  );
+  const educationKeywords = [
+  "B.Tech",
+  "B.E",
+  "Bachelor",
+  "B.Sc",
+  "M.Tech",
+  "M.E",
+  "M.Sc",
+  "Master",
+  "BCA",
+  "MCA",
+  "Computer Science",
+  "Engineering"
+];
+
+const education = educationKeywords.filter((item) =>
+  text.toLowerCase().includes(item.toLowerCase())
+);
+const projectKeywords = [
+  "project",
+  "projects",
+  "developed",
+  "application",
+  "website",
+  "system"
+];
+
+const projects = projectKeywords.filter((item) =>
+  text.toLowerCase().includes(item.toLowerCase())
+);
+
+  console.log("Name:", name);
+  console.log("Skills:", skills);
+  console.log("Education:", education);
+  console.log("Projects:", projects);
+  console.log("Resume Lines:", lines);
+
+  return {
+    name,
+    skills,
+    lines
+  };
+};
   const extractTextFromPDF = async (file) => {
   const arrayBuffer = await file.arrayBuffer();
 
@@ -43,6 +120,7 @@ function App() {
   if (selectedFile.type === "application/pdf") {
     const text = await extractTextFromPDF(selectedFile);
     setResumeText(text);
+    analyzeResume(text);
     console.log("Resume Text:");
     console.log(text);
   }
@@ -145,6 +223,31 @@ function App() {
     </div>
   </div>
 )}
+
+      <div className="mt-8 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+  <h2 className="mb-3 text-xl font-semibold text-white">
+    Job Description
+  </h2>
+
+  <p className="mb-4 text-sm text-slate-400">
+    Paste the job description you want to compare with your resume.
+  </p>
+
+  <textarea
+    value={jobDescription}
+    onChange={(e) => setJobDescription(e.target.value)}
+    placeholder="Paste the job description here..."
+    rows="8"
+    className="w-full resize-none rounded-lg border border-slate-700 bg-slate-800 p-4 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+  />
+</div>
+
+<button
+  onClick={() => console.log("Job Description:", jobDescription)}
+  className="mt-4 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
+>
+  Analyze Job
+</button>
 
           <p className="mt-4 text-sm text-slate-500">
             Your resume will be analyzed securely
