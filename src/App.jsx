@@ -14,6 +14,12 @@ function App() {
   const [matchingSkills, setMatchingSkills] = useState([]);
   const [missingSkills, setMissingSkills] = useState([]);
   const [matchPercentage, setMatchPercentage] = useState(0);
+  const [aiAnalysis, setAiAnalysis] = useState("");
+  const [resumeStrengths, setResumeStrengths] = useState([]);
+  const [improvementSuggestions, setImprovementSuggestions] = useState([]);
+  const [recommendation, setRecommendation] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
 
   // Extract text from PDF
   const extractTextFromPDF = async (file) => {
@@ -118,7 +124,99 @@ function App() {
       lines,
     };
   };
+  const analyzeWithAI = () => {
+    setIsAnalyzing(true);
+  if (!resumeText) {
+    setAiAnalysis("Please upload your resume first.");
+    return;
+  }
 
+  const strengths = [];
+
+  if (resumeSkills.includes("Java")) {
+    strengths.push("Strong Java knowledge");
+  }
+
+  if (
+    resumeSkills.includes("Data Structures") ||
+    resumeSkills.includes("DSA")
+  ) {
+    strengths.push("Good understanding of Data Structures and Algorithms");
+  }
+
+  if (resumeSkills.includes("SQL") || resumeSkills.includes("MySQL")) {
+    strengths.push("Database knowledge");
+  }
+
+  if (
+    resumeSkills.includes("Git") ||
+    resumeSkills.includes("GitHub")
+  ) {
+    strengths.push("Version control and GitHub experience");
+  }
+
+  if (
+    resumeSkills.includes("React") ||
+    resumeSkills.includes("JavaScript")
+  ) {
+    strengths.push("Web development knowledge");
+  }
+
+  setResumeStrengths(strengths);
+  const suggestions = [];
+
+if (missingSkills.length > 0) {
+  missingSkills.forEach((skill) => {
+    suggestions.push(`Consider learning ${skill} to improve your job match.`);
+  });
+}
+
+if (resumeSkills.length < 3) {
+  suggestions.push(
+    "Add more relevant technical skills to your resume."
+  );
+}
+
+if (!resumeText.toLowerCase().includes("project")) {
+  suggestions.push(
+    "Add your important projects with technologies and your contribution."
+  );
+}
+
+if (!resumeText.toLowerCase().includes("github")) {
+  suggestions.push(
+    "Add your GitHub profile to showcase your coding projects."
+  );
+}
+
+setImprovementSuggestions(suggestions);
+let finalRecommendation = "";
+
+if (matchPercentage >= 80) {
+  finalRecommendation =
+    "Your resume is a strong match for this job. You can confidently apply.";
+} else if (matchPercentage >= 50) {
+  finalRecommendation =
+    "Your resume is a moderate match. Improve the missing skills before applying.";
+} else {
+  finalRecommendation =
+    "Your resume needs improvement for this job. Focus on the missing skills and relevant projects.";
+}
+
+setRecommendation(finalRecommendation);
+setIsAnalyzing(false);
+  if (missingSkills.length === 0) {
+    setAiAnalysis(
+      "Your resume matches all detected job skills. Your technical skill alignment looks strong."
+    );
+  } else {
+    setAiAnalysis(
+      `Your resume is missing ${missingSkills.length} important skill(s): ${missingSkills.join(
+        ", "
+      )}. Consider learning these skills and adding relevant projects or experience.`
+    );
+  }
+};
   // Analyze job description
   const analyzeJobDescription = (text) => {
   const skillList = [
@@ -177,6 +275,7 @@ function App() {
       (matched.length / detectedJobSkills.length) * 100
     );
   }
+  
 
   // Update states
   setJobSkills(detectedJobSkills);
@@ -450,6 +549,102 @@ function App() {
     </p>
 
   </div>
+
+</div>
+     {/* AI Resume Analysis */}
+<div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+
+  <h2 className="mb-3 text-xl font-semibold">
+    AI Resume Analysis
+  </h2>
+
+  <p className="text-sm leading-6 text-slate-400">
+    Get intelligent insights about your resume and discover ways
+    to improve it for your target job.
+  </p>
+
+  <button
+  onClick={analyzeWithAI}
+  disabled={isAnalyzing}
+  className="mt-5 rounded-lg bg-blue-600 px-6 py-3 font-medium transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {isAnalyzing ? "Analyzing Resume..." : "Analyze My Resume"}
+</button>
+
+{aiAnalysis && (
+  <div className="mt-5 rounded-lg border border-slate-700 bg-slate-800 p-4">
+    <p className="text-sm leading-6 text-slate-300">
+      {aiAnalysis}
+    </p>
+  </div>
+)}
+{resumeStrengths.length > 0 && (
+  <div className="mt-5">
+
+    <h3 className="mb-3 text-lg font-semibold text-white">
+      Resume Strengths
+    </h3>
+
+    <div className="space-y-2">
+      {resumeStrengths.map((strength) => (
+        <p
+          key={strength}
+          className="text-sm text-green-400"
+        >
+          ✓ {strength}
+        </p>
+      ))}
+    </div>
+
+  </div>
+)}
+{improvementSuggestions.length > 0 && (
+  <div className="mt-6">
+
+    <h3 className="mb-3 text-lg font-semibold text-white">
+      Improvement Suggestions
+    </h3>
+
+    <div className="space-y-3">
+      {improvementSuggestions.map((suggestion) => (
+        <p
+          key={suggestion}
+          className="text-sm leading-6 text-yellow-400"
+        >
+          💡 {suggestion}
+        </p>
+      ))}
+
+      {recommendation && (
+  <div className="mt-6 rounded-lg border border-blue-800 bg-blue-950 p-5">
+
+    <h3 className="mb-2 text-lg font-semibold text-blue-300">
+      Final Recommendation
+    </h3>
+
+    <p className="text-sm leading-6 text-slate-300">
+      {recommendation}
+    </p>
+
+  </div>
+)}
+{aiAnalysis && (
+  <button
+    onClick={() => {
+      setAiAnalysis("");
+      setResumeStrengths([]);
+      setImprovementSuggestions([]);
+      setRecommendation("");
+    }}
+    className="mt-6 rounded-lg border border-slate-600 px-5 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
+  >
+    Clear Analysis
+  </button>
+)}
+    </div>
+
+  </div>
+)}
 
 </div>
 
