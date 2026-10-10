@@ -93,6 +93,19 @@ const filteredResumes = resumeHistory.filter((resume) => {
   return matchesName && matchesSkill;
 });
 
+
+const totalSavedResumes = resumeHistory.length;
+
+const totalUniqueSkills = allDetectedSkills.length;
+
+const resumesWithSkills = resumeHistory.filter(
+  (resume) =>
+    (resume.skills || "")
+      .split(",")
+      .some((skill) => skill.trim() !== "")
+).length;
+
+
 const matchResumeWithJob = async () => {
 
   try {
@@ -715,7 +728,9 @@ setIsAnalyzing(false);
 
           {/* Upload Box */}
 
-          <div className="mx-auto mt-12 max-w-2xl rounded-2xl border border-slate-700 bg-slate-900 p-8">
+          
+<div className="mx-auto mt-10 w-full max-w-2xl rounded-3xl border border-slate-700 bg-gradient-to-b from-slate-900 to-slate-950 p-5 shadow-2xl shadow-blue-950/20 sm:mt-12 sm:p-8">
+
 
             <h3 className="text-xl font-semibold">
 
@@ -728,24 +743,58 @@ setIsAnalyzing(false);
               Upload your PDF resume to begin analysis.
 
             </p>
+            
 
-            <label
+<div className="mt-6 flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
 
-              htmlFor="resume-upload"
+<label
 
-              className="mt-6 inline-block cursor-pointer rounded-lg bg-blue-600 px-6 py-3 font-medium transition hover:bg-blue-700"
+ htmlFor="resume-upload"
 
-            >
+ 
 
-              Choose Resume
+className="inline-flex cursor-pointer items-center justify-center rounded-xl border border-blue-400/30 bg-blue-600 px-5 py-3 font-semibold text-white shadow-lg shadow-blue-950/30 transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 focus-within:ring-2 focus-within:ring-blue-400"
 
-            </label>
+
+ >
+
+   {file ? "Change Resume" : "Choose Resume"}
+ </label>
+ 
+
+{file && (
+  <div className="mt-3 flex flex-wrap items-center justify-center gap-3">
+    <p className="break-all text-sm text-slate-300">
+      Selected file:{" "}
+      <span className="font-medium text-blue-400">{file.name}</span>
+    </p>
+   
+<p className="w-full text-sm font-medium text-emerald-400">
+  ✓ Resume selected successfully!
+</p>
+
+    <button
+      type="button"
+      onClick={() => {
+        setFile(null);
+        setResumeText("");
+        setResumeSkills([]);
+        setAiAnalysis("");
+      }}
+      className="rounded-lg border border-red-500/40 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/10"
+    >
+      Remove Resume
+    </button>
+  </div>
+)}
+
+
 
 <button
 
   onClick={getResumeHistory}
 
-  className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700"
+  className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 sm:w-auto"
 
 >
 
@@ -757,7 +806,7 @@ setIsAnalyzing(false);
 
   onClick={matchResumeWithJob}
 
-  className="ml-3 rounded-lg bg-orange-600 px-6 py-3 font-medium text-white hover:bg-orange-700"
+  className="w-full rounded-xl bg-orange-600 px-5 py-3 font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-orange-500 sm:w-auto"
 
 >
 
@@ -765,11 +814,14 @@ setIsAnalyzing(false);
 
 </button>
 
+</div>
+
+
 {backendMatchResult && (
 
-  <div className="mt-8 rounded-2xl border bg-white p-6 shadow-lg">
+  <div className="mt-8 rounded-2xl border border-slate-700 bg-slate-900 p-6 text-left shadow-xl sm:p-8">
 
-    <h2 className="mb-6 text-2xl font-bold text-gray-800">
+    <h2 className="mb-6 text-2xl font-bold text-white">
 
       Backend Match Result
 
@@ -777,13 +829,13 @@ setIsAnalyzing(false);
 
     <div className="mb-6 text-center">
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-slate-400">
 
         Match Percentage
 
       </p>
 
-      <p className="mt-2 text-5xl font-bold text-blue-600">
+      <p className="mt-2 text-5xl font-bold text-blue-400">
 
         {backendMatchResult.matchPercentage}%
 
@@ -1316,6 +1368,42 @@ setIsAnalyzing(false);
       </section>
 
       {/* Standalone Resume History: independent of upload and analysis */}
+      
+<section className="mx-auto max-w-6xl px-6 py-8">
+  <h2 className="mb-6 text-2xl font-bold text-white">
+    Dashboard Overview
+  </h2>
+
+  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="rounded-2xl border border-blue-800 bg-blue-950/40 p-5">
+      <p className="text-sm text-slate-400">
+        Total Saved Resumes
+      </p>
+      <p className="mt-2 text-3xl font-bold text-blue-400">
+        {totalSavedResumes}
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-emerald-800 bg-emerald-950/30 p-5">
+      <p className="text-sm text-slate-400">
+        Unique Detected Skills
+      </p>
+      <p className="mt-2 text-3xl font-bold text-emerald-400">
+        {totalUniqueSkills}
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-violet-800 bg-violet-950/30 p-5">
+      <p className="text-sm text-slate-400">
+        Resumes With Skills
+      </p>
+      <p className="mt-2 text-3xl font-bold text-violet-400">
+        {resumesWithSkills}
+      </p>
+    </div>
+  </div>
+</section>
+
       <section className="px-6 pb-16">
 <section className="mx-auto mt-12 max-w-6xl rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
 
