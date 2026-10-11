@@ -108,6 +108,16 @@ const resumesWithSkills = resumeHistory.filter(
 
 const matchResumeWithJob = async () => {
 
+  if (!resumeText || !resumeText.trim()) {
+  setSaveStatus("Please upload a readable PDF resume first.");
+  return;
+}
+
+if (!jobDescription || !jobDescription.trim()) {
+  setSaveStatus("Please enter a job description before matching.");
+  return;
+}
+
   try {
 
     const response = await fetch(
@@ -607,56 +617,92 @@ setIsAnalyzing(false);
 };
 
   // Handle resume upload and save it to the backend
-  const handleFileChange = async (event) => {
-    const selectedFile = event.target.files[0];
+ 
+const handleFileChange = async (event) => {
+  const selectedFile = event.target.files[0];
 
-    if (!selectedFile) {
-      return;
-    }
+  if (!selectedFile) {
+    return;
+  }
 
-    if (selectedFile.type !== "application/pdf") {
-      setSaveStatus("Please select a PDF file.");
-      return;
-    }
+  // Validate file type
+  if (
+    selectedFile.type !== "application/pdf" &&
+    !selectedFile.name.toLowerCase().endsWith(".pdf")
+  ) {
+    setSaveStatus("Please select a PDF file.");
+    event.target.value = "";
+    return;
+  }
 
-    setFile(selectedFile);
-    setSaveStatus("Reading and saving your resume...");
+  // Validate empty file
+  if (selectedFile.size === 0) {
+    setSaveStatus("This file is empty. Please select another PDF.");
+    event.target.value = "";
+    return;
+  }
 
-    try {
-      const text = await extractTextFromPDF(selectedFile);
-      setResumeText(text);
+  setFile(selectedFile);
+  setSaveStatus("Reading and saving your resume...");
 
-      const analysis = analyzeResume(text);
+  try {
+    const text = await extractTextFromPDF(selectedFile);
 
-      const response = await fetch(
-        "http://localhost:8080/api/resume/save",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            resumeName: selectedFile.name,
-            skills: analysis.skills.join(", "),
-          }),
-        }
-      );
+    // Check whether text could be extracted
+    
+if (!text || !text.trim()) {
+  setResumeText("");
+  setResumeSkills([]);
+  setSaveStatus(
+    "We couldn't read any text from this PDF. Please try a text-based PDF resume."
+  );
+  return;
+}
 
-      if (!response.ok) {
-        throw new Error(`Saving resume failed (${response.status})`);
+    setResumeText(text);
+
+    const analysis = analyzeResume(text);
+
+    const response = await fetch(
+      "http://localhost:8080/api/resume/save",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeName: selectedFile.name,
+          skills: analysis.skills.join(", "),
+        }),
       }
+    );
 
-      setSaveStatus("Resume analyzed and saved successfully!");
-      await getResumeHistory();
-
-      console.log("Resume Text:", text);
-    } catch (error) {
-      console.error("Resume processing or saving failed:", error);
-      setSaveStatus(
-        "Resume upload could not be saved. Check that the backend is running, then try again."
-      );
+    if (!response.ok) {
+      throw new Error(`Saving resume failed (${response.status})`);
     }
-  };
+
+    setSaveStatus("Resume analyzed and saved successfully!");
+    await getResumeHistory();
+
+    console.log("Resume Text:", text);
+  } 
+catch (error) {
+  console.error("Resume processing or saving failed:", error);
+
+  if (error instanceof TypeError) {
+    setSaveStatus(
+      "Cannot connect to the backend. Please check that it is running and try again."
+    );
+  } else {
+    setSaveStatus(
+      error.message ||
+        "Unable to process this PDF. Please try another resume."
+    );
+  }
+}
+
+};
+
 
   return (
 
