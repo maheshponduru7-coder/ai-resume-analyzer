@@ -6,6 +6,8 @@ import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/$/, "");
+
 function App() {
 
   const [file, setFile] = useState(null);
@@ -46,9 +48,7 @@ function App() {
   try {
 
     const response = await fetch(
-
-      "http://localhost:8080/api/resume/history"
-
+      `${API_BASE_URL}/api/resume/history`
     );
 
     if (!response.ok) {
@@ -121,9 +121,7 @@ if (!jobDescription || !jobDescription.trim()) {
   try {
 
     const response = await fetch(
-
-      "http://localhost:8080/api/resume/match",
-
+      `${API_BASE_URL}/api/resume/match`,
       {
 
         method: "POST",
@@ -664,7 +662,7 @@ if (!text || !text.trim()) {
     const analysis = analyzeResume(text);
 
     const response = await fetch(
-      "http://localhost:8080/api/resume/save",
+      `${API_BASE_URL}/api/resume/save`,
       {
         method: "POST",
         headers: {
