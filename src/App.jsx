@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-
 import * as pdfjsLib from "pdfjs-dist";
-
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import AuthModal from "./components/AuthModal";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -43,38 +42,126 @@ function App() {
   const [resumeSearch, setResumeSearch] = useState("");
   const [selectedSkill, setSelectedSkill] = useState("All");
 
-    const getResumeHistory = async () => {
+  const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const savedToken = localStorage.getItem("token");
+      const saved = localStorage.getItem("user");
+      if (!savedToken || !saved) return null;
+      const parsed = JSON.parse(saved);
+      return parsed && parsed.username ? parsed : null;
+    } catch {
+      return null;
+    }
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  try {
+  const isAuthenticated = Boolean(token && currentUser && currentUser.username);
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/resume/history`
-    );
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setToken("");
+    setCurrentUser(null);
+    setResumeHistory([]);
+    setSaveStatus("You have been signed out.");
+  };
 
-    if (!response.ok) {
-      throw new Error(`Loading resume history failed (${response.status})`);
+  const handleAuthSuccess = (authData) => {
+    setToken(authData.token);
+    setCurrentUser(authData.user);
+    getResumeHistory(authData.token);
+    setSaveStatus(`Welcome, ${authData.user.username}!`);
+  };
+
+  const getResumeHistory = async (overrideToken) => {
+    const activeToken = overrideToken || token || localStorage.getItem("token");
+    if (!activeToken) {
+      setResumeHistory([]);
+      return;
     }
 
-    const data = await response.json();
-    const history = Array.isArray(data) ? data : [];
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/resume/history`, {
+        headers: {
+          Authorization: `Bearer ${activeToken}`,
+        },
+      });
 
-    console.log("Resume history:", history);
-    setResumeHistory(history);
+      if (response.status === 401) {
+        logout();
+        return;
+      }
 
-  } catch (error) {
+      if (!response.ok) {
+        throw new Error(`Loading resume history failed (${response.status})`);
+      }
 
-    console.error("Failed to load resume history:", error);
+      const data = await response.json();
+      const history = Array.isArray(data) ? data : [];
+      setResumeHistory(history);
+    } catch (error) {
+      console.error("Failed to load resume history:", error);
+    }
+  };
 
-    alert("Failed to load resume history");
+  // Verify current session on mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem("token");
+    if (savedToken) {
+      fetch(`${API_BASE_URL}/api/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${savedToken}`,
+        },
+      })
+        .then((res) => {
+          if (res.ok) return res.json();
+          throw new Error("Invalid session");
+        })
+        .then((userData) => {
+          setCurrentUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+          getResumeHistory(savedToken);
+        })
+        .catch(() => {
+          logout();
+        });
+    } else {
+      localStorage.removeItem("user");
+      setCurrentUser(null);
+    }
+  }, []);
 
-  }
+  const deleteResume = async (resumeId) => {
+    if (!window.confirm("Are you sure you want to delete this resume from your history?")) {
+      return;
+    }
+    const activeToken = token || localStorage.getItem("token");
+    if (!activeToken) {
+      setIsAuthModalOpen(true);
+      return;
+    }
 
-};
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/resume/${resumeId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${activeToken}`,
+        },
+      });
 
-// Load saved resumes whenever the page first opens or refreshes.
-useEffect(() => {
-  getResumeHistory();
-}, []);
+      if (response.ok) {
+        setResumeHistory((prev) => prev.filter((r) => r.id !== resumeId));
+        setSaveStatus("Resume removed from your history.");
+      } else {
+        const data = await response.json().catch(() => ({}));
+        alert(data.message || "Failed to delete resume");
+      }
+    } catch (err) {
+      console.error("Error deleting resume:", err);
+      alert("Error deleting resume");
+    }
+  };
 
 const allDetectedSkills = [...new Set(
   resumeHistory
@@ -661,26 +748,30 @@ if (!text || !text.trim()) {
 
     const analysis = analyzeResume(text);
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/resume/save`,
-      {
+    const activeToken = token || localStorage.getItem("token");
+
+    if (activeToken) {
+      const response = await fetch(`${API_BASE_URL}/api/resume/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${activeToken}`,
         },
         body: JSON.stringify({
           resumeName: selectedFile.name,
           skills: analysis.skills.join(", "),
         }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Saving resume failed (${response.status})`);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Saving resume failed (${response.status})`);
+      setSaveStatus("Resume analyzed and saved to your personal history!");
+      await getResumeHistory(activeToken);
+    } else {
+      setSaveStatus("Resume analyzed! Sign in to save it to your personal history.");
     }
-
-    setSaveStatus("Resume analyzed and saved successfully!");
-    await getResumeHistory();
 
     console.log("Resume Text:", text);
   } 
@@ -711,37 +802,47 @@ catch (error) {
       <nav className="border-b border-slate-800 bg-slate-950">
 
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-
-          <h1 className="text-2xl font-bold text-blue-400">
-
-            ResumeAI
-
-          </h1>
-
-          <div className="hidden gap-8 text-sm text-slate-300 md:flex">
-
-            <a href="#" className="hover:text-white">
-
-              Home
-
-            </a>
-
-            <a href="#features" className="hover:text-white">
-
-              Features
-
-            </a>
-
-            <a href="#about" className="hover:text-white">
-
-              About
-
-            </a>
-
+          <div className="flex items-center gap-8">
+            <h1 className="text-2xl font-bold text-blue-400">
+              ResumeAI
+            </h1>
+            <div className="hidden gap-6 text-sm text-slate-300 md:flex">
+              <a href="#" className="hover:text-white transition">Home</a>
+              <a href="#history-section" className="hover:text-white transition">History</a>
+              <a href="#features" className="hover:text-white transition">Features</a>
+              <a href="#about" className="hover:text-white transition">About</a>
+            </div>
           </div>
 
+          <div className="flex items-center gap-3">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span className="font-semibold text-white">{currentUser.username}</span>
+                  <span className="rounded bg-blue-950 px-1.5 py-0.5 text-[10px] font-medium text-blue-400 uppercase">
+                    {currentUser.role?.replace("ROLE_", "") || "USER"}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-slate-300 transition hover:border-red-500/50 hover:bg-red-500/10 hover:text-red-400 cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500 cursor-pointer"
+              >
+                Sign In / Sign Up
+              </button>
+            )}
+          </div>
         </div>
-
       </nav>
 
       {/* Hero Section */}
@@ -835,15 +936,16 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
 
 <button
-
-  onClick={getResumeHistory}
-
-  className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 sm:w-auto"
-
+  onClick={() => {
+    if (!isAuthenticated) {
+      setIsAuthModalOpen(true);
+    } else {
+      document.getElementById("history-section")?.scrollIntoView({ behavior: "smooth" });
+    }
+  }}
+  className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 sm:w-auto cursor-pointer"
 >
-
   View Resume History
-
 </button>
 
 <button
@@ -1449,7 +1551,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 </section>
 
       <section className="px-6 pb-16">
-<section className="mx-auto mt-12 max-w-6xl rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+<section id="history-section" className="mx-auto mt-12 max-w-6xl rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
 
     {/* History Header */}
 
@@ -1465,7 +1567,9 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
         <p className="mt-2 text-sm text-slate-400">
 
-          Your saved resumes — available anytime, even before a new upload
+          {isAuthenticated
+            ? `Saved resumes for @${currentUser.username} — private to your account`
+            : "Your saved resumes — sign in to view and manage your history"}
 
         </p>
 
@@ -1477,7 +1581,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
         <p className="text-2xl font-bold text-blue-400">
 
-          {resumeHistory.length}
+          {isAuthenticated ? resumeHistory.length : "—"}
 
         </p>
 
@@ -1491,71 +1595,108 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
     </div>
 
-    {/* Search and skill filter */}
-    <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <input
-        type="search"
-        value={resumeSearch}
-        onChange={(event) => setResumeSearch(event.target.value)}
-        placeholder="Search by resume filename..."
-        aria-label="Search resumes by filename"
-        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-      />
-      <select
-        value={selectedSkill}
-        onChange={(event) => setSelectedSkill(event.target.value)}
-        aria-label="Filter resumes by skill"
-        className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-      >
-        <option value="All">All Skills</option>
-        {allDetectedSkills.map((skill) => (
-          <option key={skill} value={skill}>{skill}</option>
-        ))}
-      </select>
-    </div>
-
-    <p className="mt-4 text-sm text-slate-400" aria-live="polite">
-      Showing {filteredResumes.length} of {resumeHistory.length} saved resumes
-    </p>
-
-    {resumeHistory.length === 0 ? (
-      <div className="mt-6 rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-10 text-center">
-        <p className="text-lg font-semibold text-slate-200">No saved resumes yet</p>
-        <p className="mt-2 text-sm text-slate-400">Upload a PDF resume and it will appear here automatically.</p>
-      </div>
-    ) : filteredResumes.length === 0 ? (
-      <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-900/60 px-6 py-8 text-center">
-        <p className="font-medium text-slate-200">No matching resumes found</p>
-        <p className="mt-2 text-sm text-slate-400">Try another filename or choose All Skills.</p>
+    {!isAuthenticated ? (
+      <div className="mt-8 rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-950/80 text-2xl text-blue-400 mb-4">
+          🔒
+        </div>
+        <h3 className="text-xl font-bold text-white">Personal Resume History is Locked</h3>
+        <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
+          Sign in or create an account to view and manage your uploaded resumes privately. Each user sees only their own saved resumes.
+        </p>
+        <button
+          type="button"
+          onClick={() => setIsAuthModalOpen(true)}
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500"
+        >
+          Sign In / Sign Up to View History
+        </button>
       </div>
     ) : (
-      <div className="mt-6 grid gap-5">
-        {filteredResumes.map((resume) => (
-          <div
-            key={resume.id}
-            className="rounded-2xl border border-slate-700 bg-slate-900 p-5 transition hover:border-blue-600 hover:bg-slate-800"
+      <>
+        {/* Search and skill filter */}
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <input
+            type="search"
+            value={resumeSearch}
+            onChange={(event) => setResumeSearch(event.target.value)}
+            placeholder="Search by resume filename..."
+            aria-label="Search resumes by filename"
+            className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white placeholder-slate-500 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+          />
+          <select
+            value={selectedSkill}
+            onChange={(event) => setSelectedSkill(event.target.value)}
+            aria-label="Filter resumes by skill"
+            className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <h3 className="break-all text-xl font-semibold text-white">{resume.resumeName || "Untitled resume"}</h3>
-              <span className="w-fit shrink-0 rounded-full bg-blue-950 px-3 py-1 text-xs font-medium text-blue-400">
-                Resume ID: {resume.id}
-              </span>
-            </div>
-            <div className="mt-5">
-              <p className="mb-3 text-sm font-medium text-slate-300">Detected Skills</p>
-              <div className="flex flex-wrap gap-2">
-                {resume.skills
-                  ? resume.skills.split(",").map((skill) => skill.trim()).filter(Boolean).map((skill) => (
-                      <span key={`${resume.id}-${skill}`} className="rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-sm text-slate-300">
-                        {skill}
-                      </span>
-                    ))
-                  : <span className="text-sm text-slate-500">No skills detected</span>}
-              </div>
-            </div>
+            <option value="All">All Skills</option>
+            {allDetectedSkills.map((skill) => (
+              <option key={skill} value={skill}>{skill}</option>
+            ))}
+          </select>
+        </div>
+
+        <p className="mt-4 text-sm text-slate-400" aria-live="polite">
+          Showing {filteredResumes.length} of {resumeHistory.length} saved resumes
+        </p>
+
+        {resumeHistory.length === 0 ? (
+          <div className="mt-6 rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 px-6 py-10 text-center">
+            <p className="text-lg font-semibold text-slate-200">No saved resumes in your account</p>
+            <p className="mt-2 text-sm text-slate-400">Upload a PDF resume above while signed in and it will be saved here automatically.</p>
           </div>
-        ))}
-      </div>
+        ) : filteredResumes.length === 0 ? (
+          <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-900/60 px-6 py-8 text-center">
+            <p className="font-medium text-slate-200">No matching resumes found</p>
+            <p className="mt-2 text-sm text-slate-400">Try another filename or choose All Skills.</p>
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-5">
+            {filteredResumes.map((resume) => (
+              <div
+                key={resume.id}
+                className="rounded-2xl border border-slate-700 bg-slate-900 p-5 transition hover:border-blue-600 hover:bg-slate-800"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h3 className="break-all text-xl font-semibold text-white">{resume.resumeName || "Untitled resume"}</h3>
+                    {resume.createdAt && (
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Uploaded {new Date(resume.createdAt).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="w-fit shrink-0 rounded-full bg-blue-950 px-3 py-1 text-xs font-medium text-blue-400">
+                      ID: {resume.id}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => deleteResume(resume.id)}
+                      className="rounded-xl border border-red-500/30 bg-red-950/20 px-3 py-1.5 text-xs font-medium text-red-400 transition hover:border-red-500 hover:bg-red-500/20"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-5">
+                  <p className="mb-3 text-sm font-medium text-slate-300">Detected Skills</p>
+                  <div className="flex flex-wrap gap-2">
+                    {resume.skills
+                      ? resume.skills.split(",").map((skill) => skill.trim()).filter(Boolean).map((skill) => (
+                          <span key={`${resume.id}-${skill}`} className="rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-sm text-slate-300">
+                            {skill}
+                          </span>
+                        ))
+                      : <span className="text-sm text-slate-500">No skills detected</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </>
     )}
   </section>
       </section>
@@ -1672,6 +1813,12 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
       </footer>
 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onAuthSuccess={handleAuthSuccess}
+        apiBaseUrl={API_BASE_URL}
+      />
     </div>
 
   );
