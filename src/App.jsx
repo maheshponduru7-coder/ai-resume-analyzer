@@ -126,9 +126,6 @@ function App() {
         .catch(() => {
           logout();
         });
-    } else {
-      localStorage.removeItem("user");
-      setCurrentUser(null);
     }
   }, []);
 
@@ -527,7 +524,7 @@ if (!resumeText.toLowerCase().includes("github")) {
 
 setImprovementSuggestions(suggestions);
 
-let finalRecommendation = "";
+let finalRecommendation;
 
 if (matchPercentage >= 80) {
 
