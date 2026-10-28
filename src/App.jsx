@@ -3,6 +3,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import AuthModal from "./components/AuthModal";
 import AtsScoreCard from "./components/AtsScoreCard";
+import ResumeSuggestionsCard from "./components/ResumeSuggestionsCard";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -26,14 +27,6 @@ function App() {
 
   const [matchPercentage, setMatchPercentage] = useState(0);
 
-  const [aiAnalysis, setAiAnalysis] = useState("");
-
-  const [resumeStrengths, setResumeStrengths] = useState([]);
-
-  const [improvementSuggestions, setImprovementSuggestions] = useState([]);
-
-  const [recommendation, setRecommendation] = useState("");
-
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const [backendMatchResult, setBackendMatchResult] = useState(null);
@@ -46,6 +39,9 @@ function App() {
   const [atsResult, setAtsResult] = useState(null);
   const [isCheckingAts, setIsCheckingAts] = useState(false);
   const [atsError, setAtsError] = useState("");
+
+  const [suggestionsData, setSuggestionsData] = useState(null);
+  const [suggestionsError, setSuggestionsError] = useState("");
 
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
   const [currentUser, setCurrentUser] = useState(() => {
@@ -462,163 +458,46 @@ if (!jobDescription || !jobDescription.trim()) {
 
   };
 
-  const analyzeWithAI = () => {
+  const analyzeWithAI = async () => {
+    if (!resumeText || !resumeText.trim()) {
+      setSuggestionsError("Please upload a readable PDF resume first to generate improvement suggestions.");
+      setSaveStatus("Please upload a PDF resume before generating suggestions.");
+      return;
+    }
 
     setIsAnalyzing(true);
-
-  if (!resumeText) {
-
-    setAiAnalysis("Please upload your resume first.");
-
-    return;
-
-  }
-
-  const strengths = [];
-
-  if (resumeSkills.includes("Java")) {
-
-    strengths.push("Strong Java knowledge");
-
-  }
-
-  if (
-
-    resumeSkills.includes("Data Structures") ||
-
-    resumeSkills.includes("DSA")
-
-  ) {
-
-    strengths.push("Good understanding of Data Structures and Algorithms");
-
-  }
-
-  if (resumeSkills.includes("SQL") || resumeSkills.includes("MySQL")) {
-
-    strengths.push("Database knowledge");
-
-  }
-
-  if (
-
-    resumeSkills.includes("Git") ||
-
-    resumeSkills.includes("GitHub")
-
-  ) {
-
-    strengths.push("Version control and GitHub experience");
-
-  }
-
-  if (
-
-    resumeSkills.includes("React") ||
-
-    resumeSkills.includes("JavaScript")
-
-  ) {
-
-    strengths.push("Web development knowledge");
-
-  }
-
-  setResumeStrengths(strengths);
-
-  const suggestions = [];
-
-if (missingSkills.length > 0) {
-
-  missingSkills.forEach((skill) => {
-
-    suggestions.push(`Consider learning ${skill} to improve your job match.`);
-
-  });
-
-}
-
-if (resumeSkills.length < 3) {
-
-  suggestions.push(
-
-    "Add more relevant technical skills to your resume."
-
-  );
-
-}
-
-if (!resumeText.toLowerCase().includes("project")) {
-
-  suggestions.push(
-
-    "Add your important projects with technologies and your contribution."
-
-  );
-
-}
-
-if (!resumeText.toLowerCase().includes("github")) {
-
-  suggestions.push(
-
-    "Add your GitHub profile to showcase your coding projects."
-
-  );
-
-}
-
-setImprovementSuggestions(suggestions);
-
-let finalRecommendation;
-
-if (matchPercentage >= 80) {
-
-  finalRecommendation =
-
-    "Your resume is a strong match for this job. You can confidently apply.";
-
-} else if (matchPercentage >= 50) {
-
-  finalRecommendation =
-
-    "Your resume is a moderate match. Improve the missing skills before applying.";
-
-} else {
-
-  finalRecommendation =
-
-    "Your resume needs improvement for this job. Focus on the missing skills and relevant projects.";
-
-}
-
-setRecommendation(finalRecommendation);
-
-setIsAnalyzing(false);
-
-  if (missingSkills.length === 0) {
-
-    setAiAnalysis(
-
-      "Your resume matches all detected job skills. Your technical skill alignment looks strong."
-
-    );
-
-  } else {
-
-    setAiAnalysis(
-
-      `Your resume is missing ${missingSkills.length} important skill(s): ${missingSkills.join(
-
-        ", "
-
-      )}. Consider learning these skills and adding relevant projects or experience.`
-
-    );
-
-  }
-
-};
+    setSuggestionsError("");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/resume/suggestions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeText: resumeText,
+          jobDescription: jobDescription || "",
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `Failed to generate suggestions (${response.status})`);
+      }
+
+      const data = await response.json();
+      setSuggestionsData(data);
+
+      setTimeout(() => {
+        document.getElementById("ai-suggestions-section")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } catch (err) {
+      console.error("AI Suggestions error:", err);
+      setSuggestionsError(err.message || "Failed to generate AI suggestions. Please verify the backend is running.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   // Analyze job description
 
@@ -773,6 +652,8 @@ const handleFileChange = async (event) => {
   setFile(selectedFile);
   setAtsResult(null);
   setAtsError("");
+  setSuggestionsData(null);
+  setSuggestionsError("");
   setSaveStatus("Reading and saving your resume...");
 
   try {
@@ -854,6 +735,7 @@ catch (error) {
             <div className="hidden gap-6 text-sm text-slate-300 md:flex">
               <a href="#" className="hover:text-white transition">Home</a>
               <a href="#ats-section" className="hover:text-white transition">ATS Checker</a>
+              <a href="#ai-suggestions-section" className="hover:text-white transition">AI Suggestions</a>
               <a href="#history-section" className="hover:text-white transition">History</a>
               <a href="#features" className="hover:text-white transition">Features</a>
               <a href="#about" className="hover:text-white transition">About</a>
@@ -970,9 +852,10 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
         setFile(null);
         setResumeText("");
         setResumeSkills([]);
-        setAiAnalysis("");
         setAtsResult(null);
         setAtsError("");
+        setSuggestionsData(null);
+        setSuggestionsError("");
       }}
       className="rounded-lg border border-red-500/40 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/10"
     >
@@ -1424,167 +1307,61 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
 </div>
 
-     {/* AI Resume Analysis */}
+     {/* AI Resume Improvement Suggestions */}
 
-<div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+<div className="mt-6 rounded-2xl border border-slate-700 bg-slate-900 p-6 text-left">
 
-  <h2 className="mb-3 text-xl font-semibold">
-
-    AI Resume Analysis
-
-  </h2>
-
-  <p className="text-sm leading-6 text-slate-400">
-
-    Get intelligent insights about your resume and discover ways
-
-    to improve it for your target job.
-
-  </p>
-
-  <button
-
-  onClick={analyzeWithAI}
-
-  disabled={isAnalyzing}
-
-  className="mt-5 rounded-lg bg-blue-600 px-6 py-3 font-medium transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-
->
-
-  {isAnalyzing ? "Analyzing Resume..." : "Analyze My Resume"}
-
-</button>
-
-{aiAnalysis && (
-
-  <div className="mt-5 rounded-lg border border-slate-700 bg-slate-800 p-4">
-
-    <p className="text-sm leading-6 text-slate-300">
-
-      {aiAnalysis}
-
-    </p>
-
-  </div>
-
-)}
-
-{resumeStrengths.length > 0 && (
-
-  <div className="mt-5">
-
-    <h3 className="mb-3 text-lg font-semibold text-white">
-
-      Resume Strengths
-
-    </h3>
-
-    <div className="space-y-2">
-
-      {resumeStrengths.map((strength) => (
-
-        <p
-
-          key={strength}
-
-          className="text-sm text-green-400"
-
-        >
-
-          ✓ {strength}
-
-        </p>
-
-      ))}
-
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div>
+      <h2 className="text-xl font-bold text-white flex items-center gap-2">
+        <span>💡</span> AI Resume Improvement Suggestions
+      </h2>
+      <p className="mt-1 text-sm text-slate-400">
+        Get personalized, rule-based recommendations to fix missing sections, replace weak verbs, quantify project impact, and eliminate ATS keyword gaps.
+      </p>
     </div>
-
   </div>
 
-)}
+  <div className="mt-5 flex flex-wrap items-center gap-3">
+    <button
+      type="button"
+      onClick={analyzeWithAI}
+      disabled={isAnalyzing}
+      className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:from-blue-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+    >
+      {isAnalyzing ? "Analyzing Resume..." : "💡 Get AI Improvement Suggestions"}
+    </button>
 
-{improvementSuggestions.length > 0 && (
-
-  <div className="mt-6">
-
-    <h3 className="mb-3 text-lg font-semibold text-white">
-
-      Improvement Suggestions
-
-    </h3>
-
-    <div className="space-y-3">
-
-      {improvementSuggestions.map((suggestion) => (
-
-        <p
-
-          key={suggestion}
-
-          className="text-sm leading-6 text-yellow-400"
-
-        >
-
-          💡 {suggestion}
-
-        </p>
-
-      ))}
-
-      {recommendation && (
-
-  <div className="mt-6 rounded-lg border border-blue-800 bg-blue-950 p-5">
-
-    <h3 className="mb-2 text-lg font-semibold text-blue-300">
-
-      Final Recommendation
-
-    </h3>
-
-    <p className="text-sm leading-6 text-slate-300">
-
-      {recommendation}
-
-    </p>
-
+    {suggestionsData && (
+      <button
+        type="button"
+        onClick={() => {
+          setSuggestionsData(null);
+          setSuggestionsError("");
+        }}
+        className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white cursor-pointer"
+      >
+        Clear Suggestions
+      </button>
+    )}
   </div>
 
-)}
+  {suggestionsError && (
+    <div className="mt-4 rounded-xl border border-red-500/40 bg-red-950/40 p-4 text-xs text-red-300">
+      ⚠ {suggestionsError}
+    </div>
+  )}
 
-{aiAnalysis && (
-
-  <button
-
-    onClick={() => {
-
-      setAiAnalysis("");
-
-      setResumeStrengths([]);
-
-      setImprovementSuggestions([]);
-
-      setRecommendation("");
-
+  <ResumeSuggestionsCard
+    suggestionsData={suggestionsData}
+    isLoading={isAnalyzing}
+    onAnalyze={analyzeWithAI}
+    onClear={() => {
+      setSuggestionsData(null);
+      setSuggestionsError("");
     }}
-
-    className="mt-6 rounded-lg border border-slate-600 px-5 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
-
-  >
-
-    Clear Analysis
-
-  </button>
-
-)}
-
-
-
-    </div>
-
-  </div>
-
-)}
+    hasJobDescription={Boolean(jobDescription && jobDescription.trim())}
+  />
 
 </div>
 
