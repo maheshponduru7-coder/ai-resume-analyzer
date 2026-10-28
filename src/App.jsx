@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import AuthModal from "./components/AuthModal";
+import AtsScoreCard from "./components/AtsScoreCard";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -41,6 +42,10 @@ function App() {
   const [saveStatus, setSaveStatus] = useState("");
   const [resumeSearch, setResumeSearch] = useState("");
   const [selectedSkill, setSelectedSkill] = useState("All");
+
+  const [atsResult, setAtsResult] = useState(null);
+  const [isCheckingAts, setIsCheckingAts] = useState(false);
+  const [atsError, setAtsError] = useState("");
 
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
   const [currentUser, setCurrentUser] = useState(() => {
@@ -243,6 +248,47 @@ if (!jobDescription || !jobDescription.trim()) {
   }
 
 };
+
+  const checkAtsScore = async () => {
+    if (!resumeText || !resumeText.trim()) {
+      setAtsError("Please upload a PDF resume first to evaluate its ATS compatibility.");
+      setSaveStatus("Please upload a PDF resume before checking ATS score.");
+      return;
+    }
+
+    setIsCheckingAts(true);
+    setAtsError("");
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/resume/ats-check`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resumeText: resumeText,
+          jobDescription: jobDescription || "",
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `ATS check failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      setAtsResult(data);
+
+      setTimeout(() => {
+        document.getElementById("ats-section")?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } catch (err) {
+      console.error("ATS Check error:", err);
+      setAtsError(err.message || "Failed to calculate ATS score. Please verify that the backend is running.");
+    } finally {
+      setIsCheckingAts(false);
+    }
+  };
 
   // Extract text from PDF
 
@@ -725,6 +771,8 @@ const handleFileChange = async (event) => {
   }
 
   setFile(selectedFile);
+  setAtsResult(null);
+  setAtsError("");
   setSaveStatus("Reading and saving your resume...");
 
   try {
@@ -805,6 +853,7 @@ catch (error) {
             </h1>
             <div className="hidden gap-6 text-sm text-slate-300 md:flex">
               <a href="#" className="hover:text-white transition">Home</a>
+              <a href="#ats-section" className="hover:text-white transition">ATS Checker</a>
               <a href="#history-section" className="hover:text-white transition">History</a>
               <a href="#features" className="hover:text-white transition">Features</a>
               <a href="#about" className="hover:text-white transition">About</a>
@@ -922,6 +971,8 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
         setResumeText("");
         setResumeSkills([]);
         setAiAnalysis("");
+        setAtsResult(null);
+        setAtsError("");
       }}
       className="rounded-lg border border-red-500/40 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/10"
     >
@@ -943,6 +994,15 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
   className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-blue-500 sm:w-auto cursor-pointer"
 >
   View Resume History
+</button>
+
+<button
+  type="button"
+  onClick={checkAtsScore}
+  disabled={isCheckingAts}
+  className="w-full rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white shadow-lg shadow-emerald-950/30 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 sm:w-auto disabled:opacity-50 cursor-pointer"
+>
+  {isCheckingAts ? "Evaluating ATS..." : "🎯 Check ATS Score"}
 </button>
 
 <button
@@ -1102,6 +1162,22 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
             )}
           </div>
 
+          {/* ATS Error Notice */}
+          {atsError && (
+            <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-red-500/40 bg-red-950/40 p-4 text-center text-sm text-red-300">
+              <p className="font-semibold">⚠ ATS Check Notice</p>
+              <p className="mt-1">{atsError}</p>
+            </div>
+          )}
+
+          {/* ATS Score Card */}
+          <AtsScoreCard
+            atsResult={atsResult}
+            isCheckingAts={isCheckingAts}
+            onRecheck={checkAtsScore}
+            onClose={() => setAtsResult(null)}
+          />
+
           {/* Extracted Resume Text */}
 
           {resumeText && (
@@ -1158,17 +1234,23 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
             />
 
-            <button
-
-              onClick={() => analyzeJobDescription(jobDescription)}
-
-              className="mt-4 rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
-
-            >
-
-              Analyze Job
-
-            </button>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => analyzeJobDescription(jobDescription)}
+                className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 cursor-pointer"
+              >
+                Analyze Job
+              </button>
+              <button
+                type="button"
+                onClick={checkAtsScore}
+                disabled={isCheckingAts}
+                className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 cursor-pointer"
+              >
+                {isCheckingAts ? "Evaluating ATS..." : "🎯 Check ATS Match with Job"}
+              </button>
+            </div>
 
           </div>
 
