@@ -6,6 +6,7 @@ export default function ResumeSuggestionsCard({
   onAnalyze,
   onClear,
   hasJobDescription,
+  onDownloadReport,
 }) {
   const [activeTab, setActiveTab] = useState("all");
 
@@ -85,6 +86,16 @@ export default function ResumeSuggestionsCard({
         </div>
 
         <div className="flex items-center gap-2">
+          {onDownloadReport && (
+            <button
+              type="button"
+              onClick={onDownloadReport}
+              title="Download Printable PDF Report"
+              className="rounded-xl border border-blue-500/40 bg-blue-950/40 px-3.5 py-1.5 text-xs font-semibold text-blue-300 transition hover:border-blue-400 hover:bg-blue-900/60 hover:text-white cursor-pointer"
+            >
+              📥 Download PDF Report
+            </button>
+          )}
           {onAnalyze && (
             <button
               type="button"

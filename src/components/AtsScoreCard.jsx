@@ -1,4 +1,10 @@
-export default function AtsScoreCard({ atsResult, isCheckingAts, onRecheck, onClose }) {
+export default function AtsScoreCard({
+  atsResult,
+  isCheckingAts,
+  onRecheck,
+  onClose,
+  onDownloadReport,
+}) {
   if (isCheckingAts) {
     return (
       <div id="ats-section" className="mt-8 rounded-3xl border border-blue-500/30 bg-slate-900/90 p-8 text-center shadow-2xl backdrop-blur">
@@ -86,6 +92,16 @@ export default function AtsScoreCard({ atsResult, isCheckingAts, onRecheck, onCl
         </div>
 
         <div className="flex items-center gap-2">
+          {onDownloadReport && (
+            <button
+              type="button"
+              onClick={onDownloadReport}
+              title="Download Printable PDF Report"
+              className="rounded-xl border border-blue-500/40 bg-blue-950/40 px-3.5 py-1.5 text-xs font-semibold text-blue-300 transition hover:border-blue-400 hover:bg-blue-900/60 hover:text-white cursor-pointer"
+            >
+              📥 Download PDF Report
+            </button>
+          )}
           {onRecheck && (
             <button
               type="button"

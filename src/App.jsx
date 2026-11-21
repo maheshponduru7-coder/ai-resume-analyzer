@@ -4,6 +4,7 @@ import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import AuthModal from "./components/AuthModal";
 import AtsScoreCard from "./components/AtsScoreCard";
 import ResumeSuggestionsCard from "./components/ResumeSuggestionsCard";
+import { generatePdfReport } from "./utils/pdfReportGenerator";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -497,6 +498,23 @@ if (!jobDescription || !jobDescription.trim()) {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const handleDownloadPdfReport = () => {
+    if (!resumeText && !atsResult && !suggestionsData) {
+      setSaveStatus("Please upload a PDF resume first before downloading the PDF report.");
+      return;
+    }
+    generatePdfReport({
+      file,
+      atsResult,
+      suggestionsData,
+      matchingSkills,
+      missingSkills,
+      matchPercentage,
+      jobSkills,
+      jobDescription,
+    });
   };
 
   // Analyze job description
@@ -1053,12 +1071,40 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
             </div>
           )}
 
+          {/* Analysis Report Download Banner */}
+          {Boolean(atsResult || suggestionsData || matchingSkills.length > 0) && (
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-blue-500/40 bg-gradient-to-r from-blue-950/70 via-slate-900 to-indigo-950/70 p-5 shadow-2xl text-left backdrop-blur">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600/20 text-2xl text-blue-400 border border-blue-500/30">
+                  📄
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white sm:text-lg">
+                    Comprehensive Analysis Report Ready
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Export ATS score, keyword alignment, section breakdown, and improvement tips as a printable PDF.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleDownloadPdfReport}
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/30 transition hover:from-blue-500 hover:to-indigo-500 cursor-pointer"
+              >
+                <span>📥</span>
+                <span>Download PDF Report</span>
+              </button>
+            </div>
+          )}
+
           {/* ATS Score Card */}
           <AtsScoreCard
             atsResult={atsResult}
             isCheckingAts={isCheckingAts}
             onRecheck={checkAtsScore}
             onClose={() => setAtsResult(null)}
+            onDownloadReport={handleDownloadPdfReport}
           />
 
           {/* Extracted Resume Text */}
@@ -1133,6 +1179,15 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
               >
                 {isCheckingAts ? "Evaluating ATS..." : "🎯 Check ATS Match with Job"}
               </button>
+              {Boolean(atsResult || suggestionsData || matchingSkills.length > 0) && (
+                <button
+                  type="button"
+                  onClick={handleDownloadPdfReport}
+                  className="rounded-lg border border-blue-500/40 bg-blue-950/60 px-5 py-3 font-medium text-blue-300 transition hover:bg-blue-900/60 hover:text-white cursor-pointer"
+                >
+                  📄 Download PDF Report
+                </button>
+              )}
             </div>
 
           </div>
@@ -1333,16 +1388,25 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
     </button>
 
     {suggestionsData && (
-      <button
-        type="button"
-        onClick={() => {
-          setSuggestionsData(null);
-          setSuggestionsError("");
-        }}
-        className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white cursor-pointer"
-      >
-        Clear Suggestions
-      </button>
+      <>
+        <button
+          type="button"
+          onClick={handleDownloadPdfReport}
+          className="rounded-xl border border-blue-500/40 bg-blue-950/60 px-4 py-3 text-sm font-semibold text-blue-300 transition hover:bg-blue-900/60 hover:text-white cursor-pointer"
+        >
+          📄 Download PDF Report
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSuggestionsData(null);
+            setSuggestionsError("");
+          }}
+          className="rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm font-medium text-slate-300 transition hover:bg-slate-700 hover:text-white cursor-pointer"
+        >
+          Clear Suggestions
+        </button>
+      </>
     )}
   </div>
 
@@ -1361,6 +1425,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
       setSuggestionsError("");
     }}
     hasJobDescription={Boolean(jobDescription && jobDescription.trim())}
+    onDownloadReport={handleDownloadPdfReport}
   />
 
 </div>
