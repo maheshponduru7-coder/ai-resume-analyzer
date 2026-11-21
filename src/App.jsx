@@ -4,6 +4,8 @@ import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import AuthModal from "./components/AuthModal";
 import AtsScoreCard from "./components/AtsScoreCard";
 import ResumeSuggestionsCard from "./components/ResumeSuggestionsCard";
+import ResumeCompareSection from "./components/ResumeCompareSection";
+import DashboardAnalytics from "./components/DashboardAnalytics";
 import { generatePdfReport } from "./utils/pdfReportGenerator";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
@@ -179,19 +181,6 @@ const filteredResumes = resumeHistory.filter((resume) => {
   return matchesName && matchesSkill;
 });
 
-
-const totalSavedResumes = resumeHistory.length;
-
-const totalUniqueSkills = allDetectedSkills.length;
-
-const resumesWithSkills = resumeHistory.filter(
-  (resume) =>
-    (resume.skills || "")
-      .split(",")
-      .some((skill) => skill.trim() !== "")
-).length;
-
-
 const matchResumeWithJob = async () => {
 
   if (!resumeText || !resumeText.trim()) {
@@ -275,6 +264,25 @@ if (!jobDescription || !jobDescription.trim()) {
 
       const data = await response.json();
       setAtsResult(data);
+
+      const activeToken = token || localStorage.getItem("token");
+      if (activeToken && file) {
+        fetch(`${API_BASE_URL}/api/resume/save`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${activeToken}`,
+          },
+          body: JSON.stringify({
+            resumeName: file.name,
+            skills: resumeSkills.join(", "),
+            atsScore: data.score,
+            matchPercentage: matchPercentage > 0 ? matchPercentage : null,
+          }),
+        })
+          .then(() => getResumeHistory(activeToken))
+          .catch(() => {});
+      }
 
       setTimeout(() => {
         document.getElementById("ats-section")?.scrollIntoView({ behavior: "smooth" });
@@ -627,6 +635,25 @@ if (!jobDescription || !jobDescription.trim()) {
 
   setMatchPercentage(percentage);
 
+  const activeToken = token || localStorage.getItem("token");
+  if (activeToken && file) {
+    fetch(`${API_BASE_URL}/api/resume/save`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${activeToken}`,
+      },
+      body: JSON.stringify({
+        resumeName: file.name,
+        skills: resumeSkills.join(", "),
+        atsScore: atsResult?.score || null,
+        matchPercentage: percentage,
+      }),
+    })
+      .then(() => getResumeHistory(activeToken))
+      .catch(() => {});
+  }
+
   // Debug information
 
   console.log("Job Skills:", detectedJobSkills);
@@ -704,6 +731,8 @@ if (!text || !text.trim()) {
         body: JSON.stringify({
           resumeName: selectedFile.name,
           skills: analysis.skills.join(", "),
+          atsScore: atsResult?.score || null,
+          matchPercentage: matchPercentage > 0 ? matchPercentage : null,
         }),
       });
 
@@ -752,8 +781,10 @@ catch (error) {
             </h1>
             <div className="hidden gap-6 text-sm text-slate-300 md:flex">
               <a href="#" className="hover:text-white transition">Home</a>
+              <a href="#analytics-section" className="hover:text-white transition">Analytics</a>
               <a href="#ats-section" className="hover:text-white transition">ATS Checker</a>
               <a href="#ai-suggestions-section" className="hover:text-white transition">AI Suggestions</a>
+              <a href="#compare-section" className="hover:text-white transition">Version Compare</a>
               <a href="#history-section" className="hover:text-white transition">History</a>
               <a href="#features" className="hover:text-white transition">Features</a>
               <a href="#about" className="hover:text-white transition">About</a>
@@ -1434,41 +1465,27 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
       </section>
 
+      {/* Resume Version Comparison */}
+      <ResumeCompareSection
+        apiBaseUrl={API_BASE_URL}
+        currentResumeText={resumeText}
+        currentFileName={file?.name}
+        currentJobDescription={jobDescription}
+        extractTextFromPDF={extractTextFromPDF}
+      />
+
       {/* Standalone Resume History: independent of upload and analysis */}
       
 <section className="mx-auto max-w-6xl px-6 py-8">
-  <h2 className="mb-6 text-2xl font-bold text-white">
-    Dashboard Overview
-  </h2>
-
-  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    <div className="rounded-2xl border border-blue-800 bg-blue-950/40 p-5">
-      <p className="text-sm text-slate-400">
-        Total Saved Resumes
-      </p>
-      <p className="mt-2 text-3xl font-bold text-blue-400">
-        {totalSavedResumes}
-      </p>
-    </div>
-
-    <div className="rounded-2xl border border-emerald-800 bg-emerald-950/30 p-5">
-      <p className="text-sm text-slate-400">
-        Unique Detected Skills
-      </p>
-      <p className="mt-2 text-3xl font-bold text-emerald-400">
-        {totalUniqueSkills}
-      </p>
-    </div>
-
-    <div className="rounded-2xl border border-violet-800 bg-violet-950/30 p-5">
-      <p className="text-sm text-slate-400">
-        Resumes With Skills
-      </p>
-      <p className="mt-2 text-3xl font-bold text-violet-400">
-        {resumesWithSkills}
-      </p>
-    </div>
-  </div>
+  <DashboardAnalytics
+    apiBaseUrl={API_BASE_URL}
+    token={token}
+    currentUser={currentUser}
+    isAuthenticated={isAuthenticated}
+    resumeHistory={resumeHistory}
+    onOpenAuthModal={() => setIsAuthModalOpen(true)}
+    onDeleteResume={deleteResume}
+  />
 </section>
 
       <section className="px-6 pb-16">
