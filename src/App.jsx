@@ -4,6 +4,7 @@ import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import AuthModal from "./components/AuthModal";
 import AtsScoreCard from "./components/AtsScoreCard";
 import ResumeSuggestionsCard from "./components/ResumeSuggestionsCard";
+import JobRecommendationsSection from "./components/JobRecommendationsSection";
 import ResumeCompareSection from "./components/ResumeCompareSection";
 import DashboardAnalytics from "./components/DashboardAnalytics";
 import { generatePdfReport } from "./utils/pdfReportGenerator";
@@ -784,6 +785,7 @@ catch (error) {
               <a href="#analytics-section" className="hover:text-white transition">Analytics</a>
               <a href="#ats-section" className="hover:text-white transition">ATS Checker</a>
               <a href="#ai-suggestions-section" className="hover:text-white transition">AI Suggestions</a>
+              <a href="#job-recommendations-section" className="hover:text-white transition">Job Matches</a>
               <a href="#compare-section" className="hover:text-white transition">Version Compare</a>
               <a href="#history-section" className="hover:text-white transition">History</a>
               <a href="#features" className="hover:text-white transition">Features</a>
@@ -1166,7 +1168,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
           {/* Job Description */}
 
-          <div className="mt-8 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
+          <div id="job-description-section" className="mt-8 rounded-xl border border-slate-700 bg-slate-900 p-6 text-left">
 
             <h2 className="mb-3 text-xl font-semibold">
 
@@ -1464,6 +1466,17 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
         </div>
 
       </section>
+
+      {/* Job Role Recommendations */}
+      <JobRecommendationsSection
+        apiBaseUrl={API_BASE_URL}
+        resumeText={resumeText}
+        token={token}
+        onApplyJobDescription={(desc) => {
+          setJobDescription(desc);
+          document.getElementById("job-description-section")?.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
 
       {/* Resume Version Comparison */}
       <ResumeCompareSection
