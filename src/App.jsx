@@ -5,6 +5,7 @@ import AuthModal from "./components/AuthModal";
 import AtsScoreCard from "./components/AtsScoreCard";
 import ResumeSuggestionsCard from "./components/ResumeSuggestionsCard";
 import JobRecommendationsSection from "./components/JobRecommendationsSection";
+import SkillGapAnalyzerSection from "./components/SkillGapAnalyzerSection";
 import ResumeCompareSection from "./components/ResumeCompareSection";
 import DashboardAnalytics from "./components/DashboardAnalytics";
 import { generatePdfReport } from "./utils/pdfReportGenerator";
@@ -786,6 +787,7 @@ catch (error) {
               <a href="#ats-section" className="hover:text-white transition">ATS Checker</a>
               <a href="#ai-suggestions-section" className="hover:text-white transition">AI Suggestions</a>
               <a href="#job-recommendations-section" className="hover:text-white transition">Job Matches</a>
+              <a href="#skill-gap-section" className="hover:text-white transition">Skill Gap</a>
               <a href="#compare-section" className="hover:text-white transition">Version Compare</a>
               <a href="#history-section" className="hover:text-white transition">History</a>
               <a href="#features" className="hover:text-white transition">Features</a>
@@ -1469,6 +1471,17 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
       {/* Job Role Recommendations */}
       <JobRecommendationsSection
+        apiBaseUrl={API_BASE_URL}
+        resumeText={resumeText}
+        token={token}
+        onApplyJobDescription={(desc) => {
+          setJobDescription(desc);
+          document.getElementById("job-description-section")?.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+
+      {/* Resume Skill Gap Analyzer */}
+      <SkillGapAnalyzerSection
         apiBaseUrl={API_BASE_URL}
         resumeText={resumeText}
         token={token}
