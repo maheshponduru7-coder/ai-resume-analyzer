@@ -58,13 +58,13 @@ export default function JobRecommendationsSection({
 
   const getRoleIcon = (name = "") => {
     const lower = name.toLowerCase();
-    if (lower.includes("java")) return "☕";
-    if (lower.includes("backend")) return "⚙️";
-    if (lower.includes("full stack")) return "🌐";
-    if (lower.includes("software")) return "💻";
-    if (lower.includes("frontend")) return "🎨";
-    if (lower.includes("devops") || lower.includes("cloud")) return "☁️";
-    return "💼";
+    if (lower.includes("java")) return "Java";
+    if (lower.includes("backend")) return "Backend";
+    if (lower.includes("full stack")) return "Full Stack";
+    if (lower.includes("software")) return "Software";
+    if (lower.includes("frontend")) return "Frontend";
+    if (lower.includes("devops") || lower.includes("cloud")) return "Cloud";
+    return "Role";
   };
 
   const getFitBadge = (fit = "") => {
@@ -105,8 +105,8 @@ export default function JobRecommendationsSection({
         <div className="flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-950 text-blue-400 text-xl border border-blue-500/30">
-                🎯
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-950 text-blue-400 text-xs font-bold border border-blue-500/30 uppercase">
+                Jobs
               </span>
               <h2 className="text-2xl font-bold text-white sm:text-3xl">
                 Job Role Recommendations
@@ -139,8 +139,7 @@ export default function JobRecommendationsSection({
                 </>
               ) : (
                 <>
-                  <span>🎯</span>
-                  <span>{recommendationsData ? "↻ Re-evaluate Roles" : "Recommend Job Roles"}</span>
+                  <span>{recommendationsData ? "Re-evaluate Roles" : "Recommend Job Roles"}</span>
                 </>
               )}
             </button>
@@ -160,7 +159,7 @@ export default function JobRecommendationsSection({
         {/* Error notification */}
         {errorMessage && (
           <div className="mt-6 rounded-2xl border border-red-500/40 bg-red-950/40 p-4 text-sm text-red-300">
-            <p className="font-semibold">⚠ Recommendation Notice</p>
+            <p className="font-semibold">Notice: Recommendation</p>
             <p className="mt-1">{errorMessage}</p>
           </div>
         )}
@@ -168,8 +167,8 @@ export default function JobRecommendationsSection({
         {/* Empty state when recommendations haven't been fetched yet */}
         {!recommendationsData && !isLoading && (
           <div className="mt-8 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-10 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-950/60 text-2xl text-blue-400 mb-3 border border-blue-500/30">
-              💼
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-950/60 text-xs font-bold text-blue-400 mb-3 border border-blue-500/30 uppercase tracking-wider">
+              Roles
             </div>
             <h3 className="text-lg font-bold text-white">Find Your Best Matching Career Roles</h3>
             <p className="mx-auto mt-2 max-w-md text-sm text-slate-400 leading-relaxed">
@@ -184,14 +183,14 @@ export default function JobRecommendationsSection({
                   onClick={fetchRecommendations}
                   className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500 cursor-pointer"
                 >
-                  <span>🎯</span> Generate Role Recommendations
+                  Generate Role Recommendations
                 </button>
               ) : (
                 <a
                   href="#resume-upload"
                   className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500"
                 >
-                  ↑ Upload Resume First
+                  Upload Resume First
                 </a>
               )}
             </div>
@@ -370,7 +369,7 @@ export default function JobRecommendationsSection({
                       {/* Matching Skills */}
                       <div className="mt-4">
                         <p className="text-xs font-semibold text-emerald-400 mb-1.5 flex items-center justify-between">
-                          <span>✓ Matching Skills ({role.matchingSkills.length})</span>
+                          <span>Matched Skills ({role.matchingSkills.length})</span>
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                           {role.matchingSkills.length > 0 ? (
@@ -379,7 +378,7 @@ export default function JobRecommendationsSection({
                                 key={skill}
                                 className="rounded-md bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 text-[11px] font-medium text-emerald-300"
                               >
-                                ✓ {skill}
+                                {skill}
                               </span>
                             ))
                           ) : (
@@ -404,7 +403,7 @@ export default function JobRecommendationsSection({
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-emerald-400 font-medium">✓ All core skills present!</span>
+                            <span className="text-xs text-emerald-400 font-medium">All core skills present.</span>
                           )}
                         </div>
                       </div>
@@ -413,12 +412,12 @@ export default function JobRecommendationsSection({
                       {isExpanded && role.actionableSuggestions && role.actionableSuggestions.length > 0 && (
                         <div className="mt-4 pt-3.5 border-t border-slate-800">
                           <p className="text-xs font-bold text-white mb-2 flex items-center gap-1.5">
-                            <span>💡</span> Actionable Readiness Roadmap:
+                            Actionable Readiness Roadmap:
                           </p>
                           <ul className="space-y-1.5 text-xs text-slate-300">
                             {role.actionableSuggestions.map((tip, idx) => (
                               <li key={idx} className="flex items-start gap-1.5">
-                                <span className="text-blue-400 font-bold shrink-0">→</span>
+                                <span className="text-blue-400 font-bold shrink-0 text-xs font-mono">-</span>
                                 <span>{tip}</span>
                               </li>
                             ))}
@@ -434,7 +433,7 @@ export default function JobRecommendationsSection({
                         onClick={() => setExpandedRoleId(isExpanded ? null : role.roleName)}
                         className="text-xs text-slate-400 hover:text-white transition cursor-pointer"
                       >
-                        {isExpanded ? "▲ Hide Advice" : "▼ View Readiness Tips"}
+                        {isExpanded ? "Hide Advice" : "View Readiness Tips"}
                       </button>
 
                       {onApplyJobDescription && (
@@ -446,7 +445,7 @@ export default function JobRecommendationsSection({
                           }}
                           className="rounded-lg bg-blue-950 border border-blue-500/30 px-3 py-1 text-xs font-medium text-blue-300 hover:bg-blue-900/60 hover:text-white transition cursor-pointer"
                         >
-                          🎯 Test ATS for This Role
+                          Test ATS for This Role
                         </button>
                       )}
                     </div>

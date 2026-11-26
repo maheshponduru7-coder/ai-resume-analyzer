@@ -13,12 +13,12 @@ export default function SkillGapAnalyzerSection({
   const [activeTab, setActiveTab] = useState("OVERVIEW"); // OVERVIEW, PARTIAL, MISSING, ROADMAP, PROJECTS, COMPARISON
 
   const STANDARD_ROLES = [
-    { name: "Java Developer", icon: "☕", color: "from-amber-500/20 to-orange-500/10" },
-    { name: "Backend Developer", icon: "⚙️", color: "from-blue-500/20 to-cyan-500/10" },
-    { name: "Full Stack Developer", icon: "🌐", color: "from-purple-500/20 to-pink-500/10" },
-    { name: "Software Engineer", icon: "💻", color: "from-emerald-500/20 to-teal-500/10" },
-    { name: "Frontend Developer", icon: "🎨", color: "from-sky-500/20 to-indigo-500/10" },
-    { name: "DevOps / Cloud Engineer", icon: "☁️", color: "from-rose-500/20 to-amber-500/10" },
+    { name: "Java Developer", color: "from-amber-500/20 to-orange-500/10" },
+    { name: "Backend Developer", color: "from-blue-500/20 to-cyan-500/10" },
+    { name: "Full Stack Developer", color: "from-purple-500/20 to-pink-500/10" },
+    { name: "Software Engineer", color: "from-emerald-500/20 to-teal-500/10" },
+    { name: "Frontend Developer", color: "from-sky-500/20 to-indigo-500/10" },
+    { name: "DevOps / Cloud Engineer", color: "from-rose-500/20 to-amber-500/10" },
   ];
 
   const fetchSkillGap = async (targetRoleToFetch) => {
@@ -132,7 +132,7 @@ export default function SkillGapAnalyzerSection({
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800/80 pb-6">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-950/40 px-3.5 py-1 text-xs font-semibold text-indigo-400 mb-3">
-              <span>🎯</span> Career Skill Gap Engine
+              Career Skill Gap Engine
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Resume Skill Gap Analyzer
@@ -156,7 +156,7 @@ export default function SkillGapAnalyzerSection({
                 </>
               ) : (
                 <>
-                  <span>📊</span> Analyze Skill Gap
+                  Analyze Skill Gap
                 </>
               )}
             </button>
@@ -182,7 +182,7 @@ export default function SkillGapAnalyzerSection({
                       : "border-slate-800 bg-slate-900/70 text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-slate-200"
                   }`}
                 >
-                  <span className="text-2xl mb-1">{role.icon}</span>
+                  
                   <span className="text-xs font-medium leading-tight">{role.name}</span>
                 </button>
               );
@@ -192,16 +192,14 @@ export default function SkillGapAnalyzerSection({
 
         {errorMessage && (
           <div className="mt-6 rounded-2xl border border-red-500/40 bg-red-950/40 p-4 text-sm text-red-300">
-            ⚠️ {errorMessage}
+            Notice: {errorMessage}
           </div>
         )}
 
         {/* Empty State when no resume uploaded */}
         {!resumeText && (
           <div className="mt-10 rounded-2xl border border-dashed border-slate-800 bg-slate-900/40 p-10 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-950/60 text-3xl mb-4 text-indigo-400">
-              📄
-            </div>
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-950/60 text-xs font-bold uppercase tracking-wider text-indigo-400 mb-4 border border-indigo-800/60">Resume</div>
             <h3 className="text-lg font-semibold text-white">Upload a Resume to Analyze Skill Gaps</h3>
             <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
               Please choose or upload a PDF resume at the top of the page. Once uploaded, select your target role to evaluate coverage and generate a personalized roadmap.
@@ -265,7 +263,7 @@ export default function SkillGapAnalyzerSection({
                 <div className="lg:col-span-8 space-y-6">
                   <div>
                     <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                      <span>🎯</span> {gapData.targetRole} Readiness Breakdown
+                      {gapData.targetRole} Readiness Breakdown
                     </h3>
                     <p className="mt-1 text-sm text-slate-400">
                       {gapData.roleDescription}
@@ -280,17 +278,17 @@ export default function SkillGapAnalyzerSection({
                     </div>
 
                     <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3.5 text-center">
-                      <span className="text-xs font-medium text-emerald-400">✓ Direct Match</span>
+                      <span className="text-xs font-medium text-emerald-400">Direct Match</span>
                       <p className="mt-1 text-2xl font-bold text-emerald-400">{gapData.matchedCount}</p>
                     </div>
 
                     <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-3.5 text-center">
-                      <span className="text-xs font-medium text-amber-400">⚡ Partial Foundation</span>
+                      <span className="text-xs font-medium text-amber-400">Partial Foundation</span>
                       <p className="mt-1 text-2xl font-bold text-amber-400">{gapData.partialCount}</p>
                     </div>
 
                     <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-3.5 text-center">
-                      <span className="text-xs font-medium text-rose-400">✗ Skills to Learn</span>
+                      <span className="text-xs font-medium text-rose-400">Skills to Learn</span>
                       <p className="mt-1 text-2xl font-bold text-rose-400">{gapData.missingCount}</p>
                     </div>
                   </div>
@@ -298,7 +296,7 @@ export default function SkillGapAnalyzerSection({
                   {/* Strategic Guidance Note */}
                   {gapData.advice && (
                     <div className="rounded-xl border border-indigo-500/30 bg-indigo-950/30 p-4 text-xs leading-relaxed text-indigo-200">
-                      <strong className="text-indigo-300">💡 Strategic Roadmap Insight: </strong>
+                      <strong className="text-indigo-300">Strategic Roadmap Insight: </strong>
                       {gapData.advice}
                     </div>
                   )}
@@ -310,7 +308,7 @@ export default function SkillGapAnalyzerSection({
                       onClick={() => handleTestAts(gapData.targetRole, gapData.matchedSkills, gapData.partiallyCoveredSkills, gapData.missingSkills)}
                       className="rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-md transition hover:from-emerald-500 hover:to-teal-500 cursor-pointer"
                     >
-                      🎯 Test ATS for {gapData.targetRole}
+                      Test ATS for {gapData.targetRole}
                     </button>
                     <span className="text-xs text-slate-400">
                       Populates job description section with this role's requirements
@@ -324,12 +322,12 @@ export default function SkillGapAnalyzerSection({
             {/* Navigation Tabs */}
             <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
               {[
-                { id: "OVERVIEW", label: "All Skills", count: gapData.totalRequiredSkills, icon: "📋" },
-                { id: "PARTIAL", label: "Partially Covered", count: gapData.partialCount, icon: "⚡" },
-                { id: "MISSING", label: "Missing Skills", count: gapData.missingCount, icon: "✗" },
-                { id: "ROADMAP", label: "Personalized Roadmap", icon: "🗺️" },
-                { id: "PROJECTS", label: "Project Suggestions", icon: "🛠️" },
-                { id: "COMPARISON", label: "Compare All Roles", icon: "⚖️" },
+                { id: "OVERVIEW", label: "All Skills", count: gapData.totalRequiredSkills },
+                { id: "PARTIAL", label: "Partially Covered", count: gapData.partialCount },
+                { id: "MISSING", label: "Missing Skills", count: gapData.missingCount },
+                { id: "ROADMAP", label: "Personalized Roadmap" },
+                { id: "PROJECTS", label: "Project Suggestions" },
+                { id: "COMPARISON", label: "Compare All Roles" },
               ].map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -343,7 +341,7 @@ export default function SkillGapAnalyzerSection({
                         : "bg-slate-900 border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white"
                     }`}
                   >
-                    <span>{tab.icon}</span>
+                    
                     <span>{tab.label}</span>
                     {typeof tab.count === "number" && (
                       <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
@@ -364,7 +362,7 @@ export default function SkillGapAnalyzerSection({
                 {/* Matched Section */}
                 <div>
                   <h4 className="text-sm font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-2 mb-3">
-                    <span>✓</span> Directly Matched Skills ({gapData.matchedCount})
+                    Directly Matched Skills ({gapData.matchedCount})
                   </h4>
                   {gapData.matchedSkills.length === 0 ? (
                     <p className="text-xs text-slate-500 italic">No direct skill matches detected yet for this role.</p>
@@ -375,7 +373,7 @@ export default function SkillGapAnalyzerSection({
                           key={s.name}
                           className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/30 px-3.5 py-2 text-xs font-medium text-emerald-300"
                         >
-                          <span className="text-emerald-400 font-bold">✓</span>
+                          <span className="text-emerald-400 text-[10px] font-semibold uppercase">[Matched]</span>
                           <span>{s.name}</span>
                           <span className="rounded bg-emerald-900/60 px-1.5 py-0.5 text-[10px] text-emerald-300">
                             Verified
@@ -389,7 +387,7 @@ export default function SkillGapAnalyzerSection({
                 {/* Partially Covered Section */}
                 <div className="pt-4 border-t border-slate-800/80">
                   <h4 className="text-sm font-semibold uppercase tracking-wider text-amber-400 flex items-center gap-2 mb-3">
-                    <span>⚡</span> Partially Covered Skills ({gapData.partialCount})
+                    Partially Covered Skills ({gapData.partialCount})
                   </h4>
                   {gapData.partiallyCoveredSkills.length === 0 ? (
                     <p className="text-xs text-slate-500 italic">No partial coverage skills.</p>
@@ -402,7 +400,7 @@ export default function SkillGapAnalyzerSection({
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-bold text-amber-300 flex items-center gap-1.5">
-                              <span>⚡</span> {s.name}
+                              {s.name}
                             </span>
                             <div className="flex items-center gap-1.5">
                               <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${getLevelBadge(s.learningLevel)}`}>
@@ -425,7 +423,7 @@ export default function SkillGapAnalyzerSection({
                 {/* Missing Skills Section */}
                 <div className="pt-4 border-t border-slate-800/80">
                   <h4 className="text-sm font-semibold uppercase tracking-wider text-rose-400 flex items-center gap-2 mb-3">
-                    <span>✗</span> Missing Skills to Acquire ({gapData.missingCount})
+                    Missing Skills to Acquire ({gapData.missingCount})
                   </h4>
                   {gapData.missingSkills.length === 0 ? (
                     <p className="text-xs text-emerald-400">All required competencies are present in your resume!</p>
@@ -464,7 +462,7 @@ export default function SkillGapAnalyzerSection({
             {activeTab === "PARTIAL" && (
               <div className="space-y-4">
                 <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 text-xs text-amber-200">
-                  <strong>⚡ Transferable Skills Advantage: </strong>
+                  <strong>Transferable Skills Advantage: </strong>
                   These skills are not explicitly stated on your resume, but you already have related foundational prerequisites. Learning these will be significantly faster than starting from scratch!
                 </div>
 
@@ -476,7 +474,7 @@ export default function SkillGapAnalyzerSection({
                     >
                       <div className="flex items-center justify-between mb-3">
                         <h5 className="text-base font-bold text-white flex items-center gap-2">
-                          <span className="text-amber-400">⚡</span> {s.name}
+                          {s.name}
                         </h5>
                         <span className={`px-2 py-0.5 rounded text-xs font-semibold border ${getPriorityBadge(s.priority)}`}>
                           {s.priority}
@@ -503,7 +501,7 @@ export default function SkillGapAnalyzerSection({
             {activeTab === "MISSING" && (
               <div className="space-y-4">
                 <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4 text-xs text-rose-200">
-                  <strong>✗ Prioritized Skill Gaps: </strong>
+                  <strong>Prioritized Skill Gaps: </strong>
                   Closing these gaps will make your resume fully competitive for {gapData.targetRole} positions. Prioritize <strong>HIGH</strong> priority items first.
                 </div>
 
@@ -526,7 +524,7 @@ export default function SkillGapAnalyzerSection({
                         <span className={`px-2 py-0.5 rounded border ${getLevelBadge(s.learningLevel)}`}>
                           {s.learningLevel}
                         </span>
-                        <span className="text-slate-400">⏱ {s.estimatedTime}</span>
+                        <span className="text-slate-400">Estimated: {s.estimatedTime}</span>
                       </div>
                     </div>
                   ))}
@@ -538,7 +536,7 @@ export default function SkillGapAnalyzerSection({
             {activeTab === "ROADMAP" && (
               <div className="space-y-6">
                 <div className="rounded-xl border border-indigo-500/30 bg-indigo-950/20 p-4 text-xs text-indigo-200">
-                  <strong>🗺️ Step-by-Step Action Plan: </strong>
+                  <strong>Step-by-Step Action Plan: </strong>
                   Structured in 3 sequential milestones to guide your preparation efficiently from fundamentals to production-ready engineering.
                 </div>
 
@@ -589,7 +587,7 @@ export default function SkillGapAnalyzerSection({
                           <ul className="space-y-1.5">
                             {phase.actionItems.map((item, idx) => (
                               <li key={idx} className="flex items-start gap-2 text-xs text-slate-300">
-                                <span className="text-indigo-400 mt-0.5">▸</span>
+                                <span className="text-indigo-400 mt-0.5">-</span>
                                 <span>{item}</span>
                               </li>
                             ))}
@@ -606,7 +604,7 @@ export default function SkillGapAnalyzerSection({
             {activeTab === "PROJECTS" && (
               <div className="space-y-6">
                 <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 text-xs text-emerald-200">
-                  <strong>🛠️ Practical Portfolio Projects: </strong>
+                  <strong>Practical Portfolio Projects: </strong>
                   Employers value demonstrated code over theoretical knowledge. Building these projects directly covers your missing and partially covered skills!
                 </div>
 
@@ -659,7 +657,7 @@ export default function SkillGapAnalyzerSection({
                           <ul className="space-y-1 text-xs text-slate-300">
                             {proj.keyFeatures.map((feat, fIdx) => (
                               <li key={fIdx} className="flex items-start gap-1.5">
-                                <span className="text-emerald-400">✓</span>
+                                <span className="text-emerald-400 font-semibold text-xs">[Done]</span>
                                 <span>{feat}</span>
                               </li>
                             ))}
@@ -676,7 +674,7 @@ export default function SkillGapAnalyzerSection({
             {activeTab === "COMPARISON" && (
               <div className="space-y-6">
                 <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-4 text-xs text-blue-200">
-                  <strong>⚖️ Career Alignment Matrix: </strong>
+                  <strong>Career Alignment Matrix: </strong>
                   Compare how your existing skillset stacks up across different software engineering career paths. Click any role to instantly benchmark gaps.
                 </div>
 
@@ -746,7 +744,7 @@ export default function SkillGapAnalyzerSection({
                               : "bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white"
                           }`}
                         >
-                          {isSelected ? "Currently Viewing ✓" : "Analyze This Role →"}
+                          {isSelected ? "Currently Viewing" : "Analyze This Role"}
                         </button>
                       </div>
                     );
@@ -757,7 +755,7 @@ export default function SkillGapAnalyzerSection({
 
             {/* Disclaimer */}
             <div className="text-[11px] text-slate-500 border-t border-slate-800/80 pt-4">
-              📌 {gapData.disclaimer}
+              Disclaimer: {gapData.disclaimer}
             </div>
 
           </div>

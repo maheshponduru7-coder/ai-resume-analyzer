@@ -7,6 +7,7 @@ import ResumeSuggestionsCard from "./components/ResumeSuggestionsCard";
 import JobRecommendationsSection from "./components/JobRecommendationsSection";
 import SkillGapAnalyzerSection from "./components/SkillGapAnalyzerSection";
 import ResumeCompareSection from "./components/ResumeCompareSection";
+import ResumeBuilderSection from "./components/ResumeBuilderSection";
 import DashboardAnalytics from "./components/DashboardAnalytics";
 import { generatePdfReport } from "./utils/pdfReportGenerator";
 
@@ -237,10 +238,11 @@ if (!jobDescription || !jobDescription.trim()) {
 
 };
 
-  const checkAtsScore = async () => {
-    if (!resumeText || !resumeText.trim()) {
-      setAtsError("Please upload a PDF resume first to evaluate its ATS compatibility.");
-      setSaveStatus("Please upload a PDF resume before checking ATS score.");
+  const checkAtsScore = async (overrideText) => {
+    const textToCheck = typeof overrideText === "string" ? overrideText : resumeText;
+    if (!textToCheck || !textToCheck.trim()) {
+      setAtsError("Please upload a PDF resume or build one in the Resume Builder first to evaluate its ATS compatibility.");
+      setSaveStatus("Please upload or build a resume before checking ATS score.");
       return;
     }
 
@@ -254,7 +256,7 @@ if (!jobDescription || !jobDescription.trim()) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          resumeText: resumeText,
+          resumeText: textToCheck,
           jobDescription: jobDescription || "",
         }),
       });
@@ -295,6 +297,12 @@ if (!jobDescription || !jobDescription.trim()) {
     } finally {
       setIsCheckingAts(false);
     }
+  };
+
+  const handleCheckAtsFromBuilder = (builtAtsText) => {
+    setResumeText(builtAtsText);
+    analyzeResume(builtAtsText);
+    checkAtsScore(builtAtsText);
   };
 
   // Extract text from PDF
@@ -783,6 +791,7 @@ catch (error) {
             </h1>
             <div className="hidden gap-6 text-sm text-slate-300 md:flex">
               <a href="#" className="hover:text-white transition">Home</a>
+              <a href="#resume-builder-section" className="hover:text-white transition">Builder</a>
               <a href="#analytics-section" className="hover:text-white transition">Analytics</a>
               <a href="#ats-section" className="hover:text-white transition">ATS Checker</a>
               <a href="#ai-suggestions-section" className="hover:text-white transition">AI Suggestions</a>
@@ -896,7 +905,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
     </p>
    
 <p className="w-full text-sm font-medium text-emerald-400">
-  ✓ Resume selected successfully!
+  Resume selected successfully.
 </p>
 
     <button
@@ -938,7 +947,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
   disabled={isCheckingAts}
   className="w-full rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white shadow-lg shadow-emerald-950/30 transition duration-200 hover:-translate-y-0.5 hover:bg-emerald-500 sm:w-auto disabled:opacity-50 cursor-pointer"
 >
-  {isCheckingAts ? "Evaluating ATS..." : "🎯 Check ATS Score"}
+  {isCheckingAts ? "Evaluating ATS..." : "Check ATS Score"}
 </button>
 
 <button
@@ -951,6 +960,14 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
   Match Resume with Job
 
+</button>
+
+<button
+  type="button"
+  onClick={() => document.getElementById("resume-builder-section")?.scrollIntoView({ behavior: "smooth" })}
+  className="w-full rounded-xl border border-indigo-500/40 bg-indigo-950/60 px-5 py-3 font-semibold text-indigo-300 transition duration-200 hover:-translate-y-0.5 hover:bg-indigo-900/60 hover:text-white sm:w-auto cursor-pointer"
+>
+  Build Resume from Scratch
 </button>
 
 </div>
@@ -986,7 +1003,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
       <h3 className="mb-2 text-lg font-semibold text-green-700">
 
-        ✓ Matching Skills
+        Matching Skills
 
       </h3>
 
@@ -1016,7 +1033,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
       <h3 className="mb-2 text-lg font-semibold text-red-700">
 
-        ✗ Missing Skills
+        Missing Skills
 
       </h3>
 
@@ -1068,7 +1085,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
                 <p className="text-green-400">
 
-                  ✓ Resume selected
+                  Resume selected
 
                 </p>
 
@@ -1101,7 +1118,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
           {/* ATS Error Notice */}
           {atsError && (
             <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-red-500/40 bg-red-950/40 p-4 text-center text-sm text-red-300">
-              <p className="font-semibold">⚠ ATS Check Notice</p>
+              <p className="font-semibold">Notice: ATS Check</p>
               <p className="mt-1">{atsError}</p>
             </div>
           )}
@@ -1110,9 +1127,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
           {Boolean(atsResult || suggestionsData || matchingSkills.length > 0) && (
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-blue-500/40 bg-gradient-to-r from-blue-950/70 via-slate-900 to-indigo-950/70 p-5 shadow-2xl text-left backdrop-blur">
               <div className="flex items-center gap-3.5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600/20 text-2xl text-blue-400 border border-blue-500/30">
-                  📄
-                </div>
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600/20 text-xs font-bold tracking-wider text-blue-400 border border-blue-500/30">PDF</div>
                 <div>
                   <h3 className="text-base font-bold text-white sm:text-lg">
                     Comprehensive Analysis Report Ready
@@ -1127,7 +1142,6 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
                 onClick={handleDownloadPdfReport}
                 className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/30 transition hover:from-blue-500 hover:to-indigo-500 cursor-pointer"
               >
-                <span>📥</span>
                 <span>Download PDF Report</span>
               </button>
             </div>
@@ -1212,7 +1226,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
                 disabled={isCheckingAts}
                 className="rounded-lg bg-emerald-600 px-6 py-3 font-medium text-white transition hover:bg-emerald-700 disabled:opacity-50 cursor-pointer"
               >
-                {isCheckingAts ? "Evaluating ATS..." : "🎯 Check ATS Match with Job"}
+                {isCheckingAts ? "Evaluating ATS..." : "Check ATS Match with Job"}
               </button>
               {Boolean(atsResult || suggestionsData || matchingSkills.length > 0) && (
                 <button
@@ -1220,7 +1234,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
                   onClick={handleDownloadPdfReport}
                   className="rounded-lg border border-blue-500/40 bg-blue-950/60 px-5 py-3 font-medium text-blue-300 transition hover:bg-blue-900/60 hover:text-white cursor-pointer"
                 >
-                  📄 Download PDF Report
+                  Download PDF Report
                 </button>
               )}
             </div>
@@ -1251,7 +1265,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
                   >
 
-                    ✓ {skill}
+                    {skill}
 
                   </span>
 
@@ -1287,7 +1301,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
                   >
 
-                    ✗ {skill}
+                    {skill}
 
                   </span>
 
@@ -1377,13 +1391,13 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
     <p className="text-sm text-green-400">
 
-      ✓ {matchingSkills.length} skills found in your resume
+      Matched: {matchingSkills.length} skills found in your resume
 
     </p>
 
     <p className="text-sm text-red-400">
 
-      ✗ {missingSkills.length} skills missing from your resume
+      Missing: {missingSkills.length} skills missing from your resume
 
     </p>
 
@@ -1404,7 +1418,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <div>
       <h2 className="text-xl font-bold text-white flex items-center gap-2">
-        <span>💡</span> AI Resume Improvement Suggestions
+        AI Resume Improvement Suggestions
       </h2>
       <p className="mt-1 text-sm text-slate-400">
         Get personalized, rule-based recommendations to fix missing sections, replace weak verbs, quantify project impact, and eliminate ATS keyword gaps.
@@ -1419,7 +1433,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
       disabled={isAnalyzing}
       className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:from-blue-500 hover:to-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
     >
-      {isAnalyzing ? "Analyzing Resume..." : "💡 Get AI Improvement Suggestions"}
+      {isAnalyzing ? "Analyzing Resume..." : "Get AI Improvement Suggestions"}
     </button>
 
     {suggestionsData && (
@@ -1429,7 +1443,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
           onClick={handleDownloadPdfReport}
           className="rounded-xl border border-blue-500/40 bg-blue-950/60 px-4 py-3 text-sm font-semibold text-blue-300 transition hover:bg-blue-900/60 hover:text-white cursor-pointer"
         >
-          📄 Download PDF Report
+          Download PDF Report
         </button>
         <button
           type="button"
@@ -1447,7 +1461,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
   {suggestionsError && (
     <div className="mt-4 rounded-xl border border-red-500/40 bg-red-950/40 p-4 text-xs text-red-300">
-      ⚠ {suggestionsError}
+      Notice: {suggestionsError}
     </div>
   )}
 
@@ -1468,6 +1482,13 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
         </div>
 
       </section>
+
+      {/* Professional Resume Builder */}
+      <ResumeBuilderSection
+        apiBaseUrl={API_BASE_URL}
+        token={token}
+        onCheckAtsScore={handleCheckAtsFromBuilder}
+      />
 
       {/* Job Role Recommendations */}
       <JobRecommendationsSection
@@ -1532,8 +1553,8 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
         <p className="mt-2 text-sm text-slate-400">
 
           {isAuthenticated
-            ? `Saved resumes for @${currentUser.username} — private to your account`
-            : "Your saved resumes — sign in to view and manage your history"}
+            ? `Saved resumes for @${currentUser.username} - private to your account`
+            : "Your saved resumes - sign in to view and manage your history"}
 
         </p>
 
@@ -1545,7 +1566,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
         <p className="text-2xl font-bold text-blue-400">
 
-          {isAuthenticated ? resumeHistory.length : "—"}
+          {isAuthenticated ? resumeHistory.length : "-"}
 
         </p>
 
@@ -1561,9 +1582,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
     {!isAuthenticated ? (
       <div className="mt-8 rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-8 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-950/80 text-2xl text-blue-400 mb-4">
-          🔒
-        </div>
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-950/80 text-xs font-bold uppercase tracking-wider text-blue-400 mb-4 border border-blue-800/60">Locked</div>
         <h3 className="text-xl font-bold text-white">Personal Resume History is Locked</h3>
         <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
           Sign in or create an account to view and manage your uploaded resumes privately. Each user sees only their own saved resumes.
@@ -1773,7 +1792,7 @@ className="inline-flex cursor-pointer items-center justify-center rounded-xl bor
 
       <footer className="border-t border-slate-800 px-6 py-6 text-center text-sm text-slate-500">
 
-        AI Resume Analyzer • Built with React
+        AI Resume Analyzer - Built with React
 
       </footer>
 

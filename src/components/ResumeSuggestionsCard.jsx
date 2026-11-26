@@ -79,7 +79,7 @@ export default function ResumeSuggestionsCard({
                   : "bg-blue-950 text-blue-300 border border-blue-500/40"
               }`}
             >
-              {mode === "TARGETED" ? "🎯 Role-Tailored Plan" : "📋 General Improvement Plan"}
+              {mode === "TARGETED" ? "Role-Tailored Plan" : "General Improvement Plan"}
             </span>
           </div>
           <p className="mt-1 text-xs text-slate-400">{modeLabel}</p>
@@ -93,7 +93,7 @@ export default function ResumeSuggestionsCard({
               title="Download Printable PDF Report"
               className="rounded-xl border border-blue-500/40 bg-blue-950/40 px-3.5 py-1.5 text-xs font-semibold text-blue-300 transition hover:border-blue-400 hover:bg-blue-900/60 hover:text-white cursor-pointer"
             >
-              📥 Download PDF Report
+              Download PDF Report
             </button>
           )}
           {onAnalyze && (
@@ -102,7 +102,7 @@ export default function ResumeSuggestionsCard({
               onClick={onAnalyze}
               className="rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-blue-500 hover:bg-slate-700 cursor-pointer"
             >
-              ↻ Re-analyze
+              Re-analyze
             </button>
           )}
           {onClear && (
@@ -111,7 +111,7 @@ export default function ResumeSuggestionsCard({
               onClick={onClear}
               className="rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white cursor-pointer"
             >
-              ✕ Dismiss
+              Dismiss
             </button>
           )}
         </div>
@@ -159,7 +159,7 @@ export default function ResumeSuggestionsCard({
           </div>
           {!hasJobDescription && mode === "GENERAL" && (
             <p className="text-xs text-blue-300">
-              💡 <strong>Tip:</strong> Paste a Job Description in the box below to uncover exact missing keywords for your target role.
+              <strong>Tip:</strong> Paste a Job Description in the box below to uncover exact missing keywords for your target role.
             </p>
           )}
         </div>
@@ -169,7 +169,7 @@ export default function ResumeSuggestionsCard({
       {priorityActionItems.length > 0 && (
         <div className="mb-6 rounded-2xl border border-blue-500/30 bg-blue-950/20 p-5">
           <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-blue-300">
-            <span>🚀</span> Priority Action Checklist (Do These First)
+            Priority Action Checklist (Do These First)
           </h3>
           <div className="mt-3 space-y-2.5">
             {priorityActionItems.map((action, idx) => (
@@ -188,7 +188,7 @@ export default function ResumeSuggestionsCard({
       {strengths.length > 0 && (
         <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-950/10 p-5">
           <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-emerald-400">
-            <span>✓</span> Detected Strengths
+            Detected Strengths
           </h3>
           <div className="mt-3 flex flex-wrap gap-2">
             {strengths.map((strength, idx) => (
@@ -196,7 +196,7 @@ export default function ResumeSuggestionsCard({
                 key={idx}
                 className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 px-3 py-1.5 text-xs text-emerald-200"
               >
-                ✓ {strength}
+                {strength}
               </span>
             ))}
           </div>
@@ -207,7 +207,7 @@ export default function ResumeSuggestionsCard({
       {weakVerbsFound.length > 0 && (
         <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-950/10 p-5">
           <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-amber-300">
-            <span>⚡</span> Replace Passive Phrases With Power Verbs
+            Replace Passive Phrases With Power Verbs
           </h3>
           <p className="mt-1 text-xs text-slate-400">
             Detected passive phrases in your resume:{" "}
@@ -265,7 +265,6 @@ export default function ResumeSuggestionsCard({
           >
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
               <h4 className="text-base font-bold text-white flex items-center gap-2">
-                <span>📌</span>
                 {cat.title}
               </h4>
               <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getPriorityBadge(cat.priority)}`}>
@@ -322,11 +321,11 @@ export default function ResumeSuggestionsCard({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             {matchingKeywords.length > 0 && (
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/20 p-3">
-                <p className="font-semibold text-emerald-400 mb-2">✓ Matched Keywords ({matchingKeywords.length}):</p>
+                <p className="font-semibold text-emerald-400 mb-2">Matched Keywords ({matchingKeywords.length}):</p>
                 <div className="flex flex-wrap gap-1.5">
                   {matchingKeywords.map((kw) => (
                     <span key={kw} className="rounded bg-emerald-900/50 px-2 py-0.5 text-emerald-300 text-[11px]">
-                      ✓ {kw}
+                      {kw}
                     </span>
                   ))}
                 </div>
@@ -334,11 +333,11 @@ export default function ResumeSuggestionsCard({
             )}
             {missingKeywords.length > 0 && (
               <div className="rounded-xl border border-red-500/20 bg-red-950/20 p-3">
-                <p className="font-semibold text-red-400 mb-2">✗ Missing Keywords ({missingKeywords.length}):</p>
+                <p className="font-semibold text-red-400 mb-2">Missing Keywords ({missingKeywords.length}):</p>
                 <div className="flex flex-wrap gap-1.5">
                   {missingKeywords.map((kw) => (
                     <span key={kw} className="rounded bg-red-900/50 px-2 py-0.5 text-red-300 text-[11px]">
-                      + {kw}
+                      {kw}
                     </span>
                   ))}
                 </div>

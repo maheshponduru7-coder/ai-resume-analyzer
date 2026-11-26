@@ -134,7 +134,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, apiBaseUrl }
             className="rounded-full p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
             aria-label="Close"
           >
-            ✕
+            X
           </button>
         </div>
 
@@ -173,7 +173,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, apiBaseUrl }
         {/* Error notification */}
         {error && (
           <div className="mt-4 rounded-xl border border-red-500/40 bg-red-950/40 p-3 text-sm text-red-300">
-            ⚠️ {error}
+            Error: {error}
           </div>
         )}
 

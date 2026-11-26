@@ -173,20 +173,20 @@ export default function ResumeCompareSection({
     if (delta > 0) {
       return (
         <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-950 px-2.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/30">
-          ▲ +{delta} {suffix}
+          +{delta} {suffix}
         </span>
       );
     }
     if (delta < 0) {
       return (
         <span className="inline-flex items-center gap-0.5 rounded-full bg-red-950 px-2.5 py-0.5 text-xs font-bold text-red-400 border border-red-500/30">
-          ▼ {delta} {suffix}
+          {delta} {suffix}
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-0.5 rounded-full bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-400 border border-slate-700">
-        — 0 {suffix}
+        - 0 {suffix}
       </span>
     );
   };
@@ -206,8 +206,8 @@ export default function ResumeCompareSection({
         <div className="flex flex-col gap-3 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-950 text-indigo-400 text-xl border border-indigo-500/30">
-                🔄
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-950 text-indigo-400 text-xs font-bold border border-indigo-500/30 uppercase">
+                Diff
               </span>
               <h2 className="text-2xl font-bold text-white sm:text-3xl">Resume Version Comparison</h2>
               <span className="rounded-full bg-indigo-950 px-3 py-0.5 text-xs font-semibold text-indigo-300 border border-indigo-500/40">
@@ -225,7 +225,7 @@ export default function ResumeCompareSection({
               onClick={handleReset}
               className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white cursor-pointer self-start sm:self-auto"
             >
-              ✕ Clear Comparison
+              Clear Comparison
             </button>
           )}
         </div>
@@ -233,7 +233,7 @@ export default function ResumeCompareSection({
         {/* Error notification */}
         {compareError && (
           <div className="mt-6 rounded-2xl border border-red-500/40 bg-red-950/40 p-4 text-sm text-red-300">
-            <p className="font-semibold">⚠ Comparison Notice</p>
+            <p className="font-semibold">Comparison Notice</p>
             <p className="mt-1">{compareError}</p>
           </div>
         )}
@@ -265,7 +265,7 @@ export default function ResumeCompareSection({
                 htmlFor="compare-old-resume"
                 className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-700 bg-slate-950/40 p-6 text-center hover:border-indigo-500/60 transition cursor-pointer"
               >
-                <div className="text-3xl text-slate-400 mb-2">📄</div>
+                <div className="text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">PDF File</div>
                 <p className="text-sm font-medium text-white">
                   {oldResumeName || "Upload Original Resume PDF"}
                 </p>
@@ -284,7 +284,7 @@ export default function ResumeCompareSection({
               {oldResumeText && (
                 <div className="mt-3 flex items-center justify-between text-xs text-slate-400 bg-slate-950/60 rounded-lg p-2.5 border border-slate-800">
                   <span>
-                    ✓ Text extracted: <strong>{oldResumeText.split(/\s+/).length}</strong> words
+                    Text extracted: <strong>{oldResumeText.split(/\s+/).length}</strong> words
                   </span>
                   <button
                     type="button"
@@ -327,7 +327,7 @@ export default function ResumeCompareSection({
                 htmlFor="compare-new-resume"
                 className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-indigo-500/40 bg-slate-950/40 p-6 text-center hover:border-indigo-400 transition cursor-pointer"
               >
-                <div className="text-3xl text-indigo-400 mb-2">✨</div>
+                <div className="text-xs font-semibold text-indigo-400 mb-2 uppercase tracking-wider">Updated PDF</div>
                 <p className="text-sm font-medium text-white">
                   {newResumeName || "Upload Updated Resume PDF"}
                 </p>
@@ -346,7 +346,7 @@ export default function ResumeCompareSection({
               {newResumeText && (
                 <div className="mt-3 flex items-center justify-between text-xs text-slate-400 bg-slate-950/60 rounded-lg p-2.5 border border-slate-800">
                   <span>
-                    ✓ Text extracted: <strong>{newResumeText.split(/\s+/).length}</strong> words
+                    Text extracted: <strong>{newResumeText.split(/\s+/).length}</strong> words
                   </span>
                   <button
                     type="button"
@@ -370,7 +370,7 @@ export default function ResumeCompareSection({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800 pb-3">
             <div>
               <h3 className="font-semibold text-white flex items-center gap-2">
-                <span>🎯</span> Optional: Target Job Description for Keyword Comparison
+                Optional: Target Job Description for Keyword Comparison
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
                 Paste a target job posting to compare how effectively each version matches required keywords and skills.
@@ -414,7 +414,7 @@ export default function ResumeCompareSection({
               </>
             ) : (
               <>
-                <span>🔄 Compare Resume Versions</span>
+                <span>Compare Resume Versions</span>
               </>
             )}
           </button>
@@ -448,7 +448,7 @@ export default function ResumeCompareSection({
                 <div className="shrink-0 text-center sm:text-right">
                   {renderDeltaBadge(compareResult.atsScoreDelta, "points ATS Score")}
                   <p className="mt-1 text-xs text-slate-400">
-                    {compareResult.oldAtsScore} → <strong>{compareResult.newAtsScore}</strong> / 100
+                    {compareResult.oldAtsScore} to <strong>{compareResult.newAtsScore}</strong> / 100
                   </p>
                 </div>
               </div>
@@ -461,7 +461,7 @@ export default function ResumeCompareSection({
                 <p className="text-xs font-semibold uppercase text-slate-400">ATS Score</p>
                 <div className="mt-2 flex items-baseline justify-center gap-2">
                   <span className="text-2xl font-bold text-slate-400">{compareResult.oldAtsScore}</span>
-                  <span className="text-slate-500">→</span>
+                  <span className="text-slate-500 text-xs font-medium">to</span>
                   <span className="text-3xl font-extrabold text-white">{compareResult.newAtsScore}</span>
                 </div>
                 <div className="mt-2">
@@ -477,7 +477,7 @@ export default function ResumeCompareSection({
                 <p className="text-xs font-semibold uppercase text-slate-400">Health Score</p>
                 <div className="mt-2 flex items-baseline justify-center gap-2">
                   <span className="text-2xl font-bold text-slate-400">{compareResult.oldHealthScore}</span>
-                  <span className="text-slate-500">→</span>
+                  <span className="text-slate-500 text-xs font-medium">to</span>
                   <span className="text-3xl font-extrabold text-white">{compareResult.newHealthScore}</span>
                 </div>
                 <div className="mt-2">
@@ -491,9 +491,9 @@ export default function ResumeCompareSection({
                 <p className="text-xs font-semibold uppercase text-slate-400">Job Keyword Match</p>
                 <div className="mt-2 flex items-baseline justify-center gap-2">
                   <span className="text-2xl font-bold text-slate-400">
-                    {compareResult.hasJobDescription ? `${compareResult.oldMatchPercentage}%` : "—"}
+                    {compareResult.hasJobDescription ? `${compareResult.oldMatchPercentage}%` : "-"}
                   </span>
-                  <span className="text-slate-500">→</span>
+                  <span className="text-slate-500 text-xs font-medium">to</span>
                   <span className="text-3xl font-extrabold text-white">
                     {compareResult.hasJobDescription ? `${compareResult.newMatchPercentage}%` : "N/A"}
                   </span>
@@ -513,7 +513,7 @@ export default function ResumeCompareSection({
                 <p className="text-xs font-semibold uppercase text-slate-400">Word Count</p>
                 <div className="mt-2 flex items-baseline justify-center gap-2">
                   <span className="text-2xl font-bold text-slate-400">{compareResult.oldWordCount}</span>
-                  <span className="text-slate-500">→</span>
+                  <span className="text-slate-500 text-xs font-medium">to</span>
                   <span className="text-3xl font-extrabold text-white">{compareResult.newWordCount}</span>
                 </div>
                 <div className="mt-2">
@@ -529,7 +529,7 @@ export default function ResumeCompareSection({
             {compareResult.categoryDeltas && Object.keys(compareResult.categoryDeltas).length > 0 && (
               <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
                 <h4 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-                  <span>📊</span> Category-Wise Score Progression
+                  Category-Wise Score Progression
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
@@ -571,7 +571,7 @@ export default function ResumeCompareSection({
             {/* Skills Evolution (Added / Retained / Removed) */}
             <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
               <h4 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-                <span>⚡</span> Technical Skills Evolution
+                Technical Skills Evolution
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Newly Added Skills */}
@@ -613,7 +613,7 @@ export default function ResumeCompareSection({
                           key={skill}
                           className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-300"
                         >
-                          ✓ {skill}
+                          {skill}
                         </span>
                       ))
                     ) : (
@@ -641,7 +641,7 @@ export default function ResumeCompareSection({
                         </span>
                       ))
                     ) : (
-                      <span className="text-xs text-emerald-400">✓ No previous skills dropped</span>
+                      <span className="text-xs text-emerald-400">No previous skills dropped</span>
                     )}
                   </div>
                 </div>
@@ -653,13 +653,13 @@ export default function ResumeCompareSection({
               {/* Section Architecture Evolution */}
               <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
                 <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                  <span>📑</span> Section Architecture Changes
+                  Section Architecture Changes
                 </h4>
                 <div className="space-y-3">
                   {compareResult.missingSectionsResolved && compareResult.missingSectionsResolved.length > 0 && (
                     <div className="rounded-xl bg-emerald-950/30 border border-emerald-500/30 p-3">
                       <p className="text-xs font-bold text-emerald-400">
-                        ✓ Missing Sections Resolved:
+                        Missing Sections Resolved:
                       </p>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
                         {compareResult.missingSectionsResolved.map((sec) => (
@@ -689,7 +689,7 @@ export default function ResumeCompareSection({
                   {compareResult.remainingMissingSections && compareResult.remainingMissingSections.length > 0 ? (
                     <div className="rounded-xl bg-amber-950/30 border border-amber-500/30 p-3">
                       <p className="text-xs font-bold text-amber-400">
-                        ⚠ Still Missing Sections:
+                        Still Missing Sections:
                       </p>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
                         {compareResult.remainingMissingSections.map((sec) => (
@@ -701,7 +701,7 @@ export default function ResumeCompareSection({
                     </div>
                   ) : (
                     <div className="rounded-xl bg-emerald-950/20 border border-emerald-500/20 p-3 text-xs text-emerald-400 font-medium">
-                      ✓ All standard resume sections are present in v2!
+                      All standard resume sections are present in v2.
                     </div>
                   )}
                 </div>
@@ -710,19 +710,19 @@ export default function ResumeCompareSection({
               {/* Action Verbs & Metrics Evolution */}
               <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
                 <h4 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-                  <span>⚡</span> Action Verbs & Measurable Metrics
+                  Action Verbs & Measurable Metrics
                 </h4>
                 <div className="space-y-3">
                   <div className="rounded-xl bg-slate-950/50 border border-slate-800 p-3">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-400">Passive / Weak Verbs Found:</span>
                       <span className="font-semibold text-slate-300">
-                        {compareResult.oldWeakVerbsCount} → <strong>{compareResult.newWeakVerbsCount}</strong>
+                        {compareResult.oldWeakVerbsCount} to <strong>{compareResult.newWeakVerbsCount}</strong>
                       </span>
                     </div>
                     {compareResult.weakVerbsResolved && compareResult.weakVerbsResolved.length > 0 && (
                       <p className="mt-1.5 text-xs text-emerald-400">
-                        ✓ Eliminated weak phrases: <em>"{compareResult.weakVerbsResolved.join('", "')}"</em>
+                        Eliminated weak phrases: <em>"{compareResult.weakVerbsResolved.join('", "')}"</em>
                       </p>
                     )}
                   </div>
@@ -731,16 +731,16 @@ export default function ResumeCompareSection({
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-400">Quantifiable Metrics Detected:</span>
                       <span className="font-semibold text-slate-300">
-                        {compareResult.oldMetricsCount} → <strong>{compareResult.newMetricsCount}</strong>
+                        {compareResult.oldMetricsCount} to <strong>{compareResult.newMetricsCount}</strong>
                       </span>
                     </div>
                     {compareResult.metricsDelta > 0 ? (
                       <p className="mt-1.5 text-xs text-emerald-400">
-                        ✓ Added +{compareResult.metricsDelta} measurable outcome(s) (percentages/numbers/metrics)
+                        Added +{compareResult.metricsDelta} measurable outcome(s) (percentages/numbers/metrics)
                       </p>
                     ) : compareResult.newMetricsCount === 0 ? (
                       <p className="mt-1.5 text-xs text-amber-400">
-                        ⚠ No quantifiable metrics detected yet in v2. Add Google XYZ formula achievements.
+                        No quantifiable metrics detected yet in v2. Add Google XYZ formula achievements.
                       </p>
                     ) : null}
                   </div>
@@ -752,7 +752,7 @@ export default function ResumeCompareSection({
             {compareResult.hasJobDescription && (
               <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
                 <h4 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-                  <span>🎯</span> Target Job Keyword Alignment Progression
+                  Target Job Keyword Alignment Progression
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4">
@@ -763,7 +763,7 @@ export default function ResumeCompareSection({
                       {compareResult.newlyMatchedKeywords && compareResult.newlyMatchedKeywords.length > 0 ? (
                         compareResult.newlyMatchedKeywords.map((kw) => (
                           <span key={kw} className="rounded-md bg-emerald-900/50 px-2 py-0.5 text-xs text-emerald-300">
-                            ✓ {kw}
+                            {kw}
                           </span>
                         ))
                       ) : (
@@ -780,11 +780,11 @@ export default function ResumeCompareSection({
                       {compareResult.stillMissingKeywords && compareResult.stillMissingKeywords.length > 0 ? (
                         compareResult.stillMissingKeywords.slice(0, 8).map((kw) => (
                           <span key={kw} className="rounded-md bg-red-900/50 px-2 py-0.5 text-xs text-red-300">
-                            ✗ {kw}
+                            {kw}
                           </span>
                         ))
                       ) : (
-                        <span className="text-xs text-emerald-400">✓ All target keywords matched!</span>
+                        <span className="text-xs text-emerald-400">All target keywords matched.</span>
                       )}
                     </div>
                   </div>
@@ -796,12 +796,12 @@ export default function ResumeCompareSection({
             {compareResult.keyImprovements && compareResult.keyImprovements.length > 0 && (
               <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-6">
                 <h4 className="text-base font-bold text-emerald-400 mb-3 flex items-center gap-2">
-                  <span>✅</span> Verified Version Improvements
+                  Verified Version Improvements
                 </h4>
                 <ul className="space-y-2 text-sm text-emerald-200">
                   {compareResult.keyImprovements.map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                      <span className="text-emerald-400 font-bold shrink-0 text-xs">Success</span>
                       <span>{item}</span>
                     </li>
                   ))}
@@ -813,12 +813,12 @@ export default function ResumeCompareSection({
             {compareResult.actionableSuggestions && compareResult.actionableSuggestions.length > 0 && (
               <div className="mt-8 rounded-2xl border border-amber-500/30 bg-amber-950/20 p-6">
                 <h4 className="text-base font-bold text-amber-400 mb-3 flex items-center gap-2">
-                  <span>💡</span> Next Steps for Updated Resume (v2)
+                  Next Steps for Updated Resume (v2)
                 </h4>
                 <ul className="space-y-2 text-sm text-amber-200">
                   {compareResult.actionableSuggestions.map((item, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="text-amber-400 font-bold shrink-0">→</span>
+                      <span className="text-amber-400 font-bold shrink-0 text-xs font-mono">-</span>
                       <span>{item}</span>
                     </li>
                   ))}

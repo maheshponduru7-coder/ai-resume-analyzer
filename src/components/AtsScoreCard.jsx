@@ -99,7 +99,7 @@ export default function AtsScoreCard({
               title="Download Printable PDF Report"
               className="rounded-xl border border-blue-500/40 bg-blue-950/40 px-3.5 py-1.5 text-xs font-semibold text-blue-300 transition hover:border-blue-400 hover:bg-blue-900/60 hover:text-white cursor-pointer"
             >
-              📥 Download PDF Report
+              Download PDF Report
             </button>
           )}
           {onRecheck && (
@@ -108,7 +108,7 @@ export default function AtsScoreCard({
               onClick={onRecheck}
               className="rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-blue-500 hover:bg-slate-700"
             >
-              ↻ Re-check
+              Re-check
             </button>
           )}
           {onClose && (
@@ -117,7 +117,7 @@ export default function AtsScoreCard({
               onClick={onClose}
               className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-400 transition hover:text-white"
             >
-              ✕ Dismiss
+              Dismiss
             </button>
           )}
         </div>
@@ -151,11 +151,11 @@ export default function AtsScoreCard({
 
           {mode === "GENERAL" ? (
             <div className="rounded-xl border border-blue-900/50 bg-blue-950/30 p-3.5 text-xs text-blue-200">
-              💡 <strong>General Quality Estimate:</strong> This score benchmarks your resume structure, contact information, word count, and core tech skills without a specific role. Paste a <strong>Job Description</strong> in the box below to unlock targeted keyword matching and discover missing ATS terms.
+              <strong>General Quality Estimate:</strong> This score benchmarks your resume structure, contact information, word count, and core tech skills without a specific role. Paste a <strong>Job Description</strong> in the box below to unlock targeted keyword matching and discover missing ATS terms.
             </div>
           ) : (
             <div className="rounded-xl border border-emerald-900/50 bg-emerald-950/30 p-3.5 text-xs text-emerald-200">
-              🎯 <strong>Targeted Role Match:</strong> Your resume was evaluated against keywords from the provided job description. Check the missing keywords below to optimize your score before submitting.
+              <strong>Targeted Role Match:</strong> Your resume was evaluated against keywords from the provided job description. Check the missing keywords below to optimize your score before submitting.
             </div>
           )}
         </div>
@@ -202,13 +202,13 @@ export default function AtsScoreCard({
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
           <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-400">
-            <span>✓</span> Detected Sections ({detectedSections.length})
+            <span>Matched</span> Detected Sections ({detectedSections.length})
           </h4>
           <div className="mt-3 flex flex-wrap gap-2">
             {detectedSections.length > 0 ? (
               detectedSections.map((sec) => (
                 <span key={sec} className="rounded-lg border border-emerald-500/30 bg-emerald-950/40 px-2.5 py-1 text-xs text-emerald-300">
-                  ✓ {sec}
+                  {sec}
                 </span>
               ))
             ) : (
@@ -219,12 +219,12 @@ export default function AtsScoreCard({
             <div className="mt-2.5 flex flex-wrap gap-1.5 text-[11px] text-slate-400 border-t border-slate-800/80 pt-2">
               {contactDetails.email && (
                 <span className="rounded bg-slate-800/90 px-2 py-0.5 text-slate-300 font-mono">
-                  📧 {contactDetails.email}
+                  Email: {contactDetails.email}
                 </span>
               )}
               {contactDetails.phone && (
                 <span className="rounded bg-slate-800/90 px-2 py-0.5 text-slate-300 font-mono">
-                  📞 {contactDetails.phone}
+                  Phone: {contactDetails.phone}
                 </span>
               )}
             </div>
@@ -233,13 +233,13 @@ export default function AtsScoreCard({
 
         <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-4">
           <h4 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-amber-400">
-            <span>⚠</span> Missing Sections ({missingSections.length})
+            <span>Missing</span> Missing Sections ({missingSections.length})
           </h4>
           <div className="mt-3 flex flex-wrap gap-2">
             {missingSections.length > 0 ? (
               missingSections.map((sec) => (
                 <span key={sec} className="rounded-lg border border-amber-500/30 bg-amber-950/40 px-2.5 py-1 text-xs text-amber-300">
-                  ✗ {sec}
+                  {sec}
                 </span>
               ))
             ) : (
@@ -260,12 +260,12 @@ export default function AtsScoreCard({
             {matchingKeywords.length > 0 && (
               <div>
                 <p className="mb-2 text-xs font-medium text-emerald-400">
-                  ✓ Matching Keywords in Your Resume ({matchingKeywords.length}):
+                  Matching Keywords in Your Resume ({matchingKeywords.length}):
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {matchingKeywords.map((kw) => (
                     <span key={kw} className="rounded-lg border border-emerald-500/30 bg-emerald-950/40 px-2.5 py-1 text-xs font-medium text-emerald-300">
-                      ✓ {kw}
+                      {kw}
                     </span>
                   ))}
                 </div>
@@ -275,7 +275,7 @@ export default function AtsScoreCard({
             {missingKeywords.length > 0 && (
               <div>
                 <p className="mb-2 text-xs font-medium text-red-400">
-                  ✗ Missing Job Keywords ({missingKeywords.length}) — Consider incorporating these:
+                  Missing Job Keywords ({missingKeywords.length}) - Consider incorporating these:
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {missingKeywords.map((kw) => (
@@ -307,7 +307,7 @@ export default function AtsScoreCard({
       {formattingConcerns && formattingConcerns.length > 0 && (
         <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-950/20 p-5">
           <h4 className="flex items-center gap-2 text-sm font-semibold text-amber-300">
-            <span>⚠</span> Formatting & Parsing Concerns ({formattingConcerns.length})
+            Formatting & Parsing Concerns ({formattingConcerns.length})
           </h4>
           <ul className="mt-2 space-y-1.5 text-xs text-amber-200/90 list-disc list-inside">
             {formattingConcerns.map((concern, idx) => (
@@ -321,7 +321,7 @@ export default function AtsScoreCard({
       {suggestions && suggestions.length > 0 && (
         <div className="mt-6 rounded-2xl border border-blue-900/60 bg-blue-950/20 p-5">
           <h4 className="flex items-center gap-2 text-sm font-semibold text-blue-300">
-            <span>💡</span> Actionable ATS Improvement Suggestions
+            Actionable ATS Improvement Suggestions
           </h4>
           <ul className="mt-3 space-y-2 text-xs text-slate-300">
             {suggestions.map((suggestion, idx) => (

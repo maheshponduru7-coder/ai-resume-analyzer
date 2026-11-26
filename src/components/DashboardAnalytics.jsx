@@ -122,8 +122,8 @@ export default function DashboardAnalytics({
     return (
       <section id="analytics-section" className="mx-auto mt-12 max-w-6xl px-6">
         <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-900/40 p-8 sm:p-12 text-center backdrop-blur">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-950/80 text-3xl text-blue-400 mb-4 border border-blue-500/30">
-            📊
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-950/80 text-xs font-bold text-blue-400 mb-4 border border-blue-500/30 uppercase tracking-wider">
+            Metrics
           </div>
           <h2 className="text-2xl font-bold text-white sm:text-3xl">Candidate Dashboard & Analytics</h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-slate-400 leading-relaxed">
@@ -135,7 +135,7 @@ export default function DashboardAnalytics({
               onClick={onOpenAuthModal}
               className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500 cursor-pointer"
             >
-              <span>🔒</span> Sign In to View Your Analytics
+              Sign In to View Your Analytics
             </button>
           </div>
         </div>
@@ -161,8 +161,8 @@ export default function DashboardAnalytics({
         <div className="flex flex-col gap-4 border-b border-slate-800 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-950 text-blue-400 text-xl border border-blue-500/30">
-                📊
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-950 text-blue-400 text-xs font-bold border border-blue-500/30 uppercase">
+                ATS
               </span>
               <h2 className="text-2xl font-bold text-white sm:text-3xl">
                 Analytics Dashboard
@@ -184,13 +184,13 @@ export default function DashboardAnalytics({
               title="Refresh dashboard metrics"
               className="rounded-xl border border-slate-700 bg-slate-900 px-3.5 py-2 text-xs font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white cursor-pointer disabled:opacity-50"
             >
-              {isLoading ? "Refreshing..." : "↻ Refresh"}
+              {isLoading ? "Refreshing..." : "Refresh"}
             </button>
             <a
               href="#resume-upload"
               className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500 cursor-pointer"
             >
-              ↑ Upload Resume
+              Upload Resume
             </a>
           </div>
         </div>
@@ -204,8 +204,8 @@ export default function DashboardAnalytics({
         {/* Empty state when user has 0 saved resumes */}
         {totalResumes === 0 ? (
           <div className="mt-8 rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 p-10 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-950/50 text-2xl text-blue-400 mb-3">
-              🚀
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-950/50 text-xs font-bold text-blue-400 mb-3 uppercase tracking-wider">
+              Start
             </div>
             <h3 className="text-lg font-bold text-white">No Resumes Analyzed Yet</h3>
             <p className="mx-auto mt-2 max-w-md text-sm text-slate-400 leading-relaxed">
@@ -226,7 +226,7 @@ export default function DashboardAnalytics({
               <div className="rounded-2xl border border-blue-900/40 bg-blue-950/20 p-5 text-left">
                 <div className="flex items-center justify-between text-slate-400">
                   <span className="text-xs font-semibold uppercase tracking-wider">Total Resumes</span>
-                  <span className="text-xl">📁</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-blue-400">Total</span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className="text-3xl font-extrabold text-blue-400">{totalResumes}</span>
@@ -241,18 +241,18 @@ export default function DashboardAnalytics({
               <div className={`rounded-2xl border ${latestTheme.border} ${latestTheme.bg} p-5 text-left`}>
                 <div className="flex items-center justify-between text-slate-400">
                   <span className="text-xs font-semibold uppercase tracking-wider">Latest ATS Score</span>
-                  <span className="text-xl">🎯</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Score</span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className={`text-3xl font-extrabold ${latestTheme.text}`}>
-                    {latestAts != null ? latestAts : "—"}
+                    {latestAts != null ? latestAts : "-"}
                   </span>
                   <span className="text-xs text-slate-400">/ 100</span>
                 </div>
                 <p className="mt-2 text-[11px] text-slate-400">
                   {latestAts != null
                     ? latestAts >= 80
-                      ? "✓ Strong ATS compatibility"
+                      ? "Strong ATS compatibility"
                       : latestAts >= 65
                       ? "Good compatibility"
                       : "Needs section / keyword work"
@@ -264,11 +264,11 @@ export default function DashboardAnalytics({
               <div className={`rounded-2xl border ${avgTheme.border} ${avgTheme.bg} p-5 text-left`}>
                 <div className="flex items-center justify-between text-slate-400">
                   <span className="text-xs font-semibold uppercase tracking-wider">Average ATS Score</span>
-                  <span className="text-xl">📈</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Average</span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className={`text-3xl font-extrabold ${avgTheme.text}`}>
-                    {averageAts != null ? averageAts : "—"}
+                    {averageAts != null ? averageAts : "-"}
                   </span>
                   <span className="text-xs text-slate-400">/ 100</span>
                 </div>
@@ -281,11 +281,11 @@ export default function DashboardAnalytics({
               <div className={`rounded-2xl border ${bestMatchTheme.border} ${bestMatchTheme.bg} p-5 text-left`}>
                 <div className="flex items-center justify-between text-slate-400">
                   <span className="text-xs font-semibold uppercase tracking-wider">Best Job Match</span>
-                  <span className="text-xl">🏆</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-400">Match</span>
                 </div>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className={`text-3xl font-extrabold ${bestMatchTheme.text}`}>
-                    {bestMatch > 0 ? `${bestMatch}%` : "—"}
+                    {bestMatch > 0 ? `${bestMatch}%` : "-"}
                   </span>
                 </div>
                 <p className="mt-2 text-[11px] text-slate-400">
@@ -299,7 +299,7 @@ export default function DashboardAnalytics({
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800/80 pb-4">
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span>📈</span> ATS Score & Alignment Trends
+                    ATS Score & Alignment Trends
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
                     Score progression across your analyzed resume versions (benchmark goal: 75+ points).
@@ -388,7 +388,7 @@ export default function DashboardAnalytics({
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span>🕒</span> Recent Resume Analysis Activity
+                    Recent Resume Analysis Activity
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
                     Your latest uploaded and audited resumes.

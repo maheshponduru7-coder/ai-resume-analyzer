@@ -481,15 +481,15 @@ export function generatePdfReport({
   <!-- Print action toolbar for browser preview -->
   <div class="toolbar no-print">
     <div>
-      <strong>📄 AI Resume Analyzer — PDF Audit Report</strong>
+      <strong>AI Resume Analyzer - PDF Audit Report</strong>
       <span class="toolbar-info"> • Ready for download / printing</span>
     </div>
     <div class="toolbar-actions">
       <button class="btn btn-primary" onclick="window.print()">
-        <span>🖨️</span> Save as PDF / Print
+        Save as PDF / Print
       </button>
       <button class="btn btn-secondary" onclick="window.close()">
-        <span>✕</span> Close Preview
+        Close Preview
       </button>
     </div>
   </div>
@@ -526,7 +526,7 @@ export function generatePdfReport({
       <div class="score-card">
         <div class="score-card-title">ATS Compatibility</div>
         <div class="score-card-val" style="color: ${atsScoreColor};">
-          ${atsScore != null ? atsScore : "—"}<span style="font-size:18px; font-weight:600; color:#94a3b8;">/100</span>
+          ${atsScore != null ? atsScore : "-"}<span style="font-size:18px; font-weight:600; color:#94a3b8;">/100</span>
         </div>
         <div class="score-card-sub" style="color: ${atsScoreColor};">
           ${escapeHtml(atsRating)}
@@ -536,7 +536,7 @@ export function generatePdfReport({
       <div class="score-card">
         <div class="score-card-title">Resume Health Score</div>
         <div class="score-card-val" style="color: ${getScoreColor(healthScore)};">
-          ${healthScore != null ? healthScore : "—"}<span style="font-size:18px; font-weight:600; color:#94a3b8;">/100</span>
+          ${healthScore != null ? healthScore : "-"}<span style="font-size:18px; font-weight:600; color:#94a3b8;">/100</span>
         </div>
         <div class="score-card-sub">
           ${suggestionsData?.summary ? "Full Heuristic Audit" : "General Quality"}
@@ -565,7 +565,7 @@ export function generatePdfReport({
       Object.keys(categoryScores).length > 0
         ? `
     <div class="avoid-break">
-      <h2 class="section-title">📊 ATS Scoring Breakdown</h2>
+      <h2 class="section-title">ATS Scoring Breakdown</h2>
       <table class="table">
         <thead>
           <tr>
@@ -578,33 +578,33 @@ export function generatePdfReport({
         <tbody>
           <tr>
             <td><strong>Section Completeness</strong> (Summary, Experience, Education, Skills)</td>
-            <td><strong>${categoryScores.sectionCompleteness ?? "—"}</strong></td>
+            <td><strong>${categoryScores.sectionCompleteness ?? "-"}</strong></td>
             <td>25</td>
-            <td>${(categoryScores.sectionCompleteness || 0) >= 20 ? "✓ Well-structured" : "⚠ Missing key headers"}</td>
+            <td>${(categoryScores.sectionCompleteness || 0) >= 20 ? "Well-structured" : "Missing key headers"}</td>
           </tr>
           <tr>
             <td><strong>Contact Information</strong> (Email, Phone, Professional Links)</td>
-            <td><strong>${categoryScores.contactInfo ?? "—"}</strong></td>
+            <td><strong>${categoryScores.contactInfo ?? "-"}</strong></td>
             <td>15</td>
-            <td>${(categoryScores.contactInfo || 0) >= 12 ? "✓ Complete contact info" : "⚠ Incomplete contact info"}</td>
+            <td>${(categoryScores.contactInfo || 0) >= 12 ? "Complete contact info" : "Incomplete contact info"}</td>
           </tr>
           <tr>
             <td><strong>Job Keyword & Skill Match</strong></td>
-            <td><strong>${categoryScores.jobKeywordMatch ?? "—"}</strong></td>
+            <td><strong>${categoryScores.jobKeywordMatch ?? "-"}</strong></td>
             <td>25</td>
             <td>${isTargeted ? `${allMatchingKeywords.length} keywords matched` : "General terminology evaluated"}</td>
           </tr>
           <tr>
             <td><strong>Experience & Action Verbs</strong></td>
-            <td><strong>${categoryScores.experienceImpact ?? "—"}</strong></td>
+            <td><strong>${categoryScores.experienceImpact ?? "-"}</strong></td>
             <td>15</td>
-            <td>${(categoryScores.experienceImpact || 0) >= 12 ? "✓ Strong verb variety" : "⚠ Passive phrases detected"}</td>
+            <td>${(categoryScores.experienceImpact || 0) >= 12 ? "Strong verb variety" : "Passive phrases detected"}</td>
           </tr>
           <tr>
             <td><strong>Formatting & Clean Readability</strong></td>
-            <td><strong>${categoryScores.formattingReadability ?? "—"}</strong></td>
+            <td><strong>${categoryScores.formattingReadability ?? "-"}</strong></td>
             <td>20</td>
-            <td>${(categoryScores.formattingReadability || 0) >= 15 ? "✓ Clean ATS parseability" : "⚠ Formatting concerns flagged"}</td>
+            <td>${(categoryScores.formattingReadability || 0) >= 15 ? "Clean ATS parseability" : "Formatting concerns flagged"}</td>
           </tr>
         </tbody>
       </table>
@@ -615,7 +615,7 @@ export function generatePdfReport({
 
     <!-- Resume Section Architecture Audit -->
     <div class="avoid-break">
-      <h2 class="section-title">📑 Resume Section Architecture</h2>
+      <h2 class="section-title">Resume Section Architecture</h2>
       <div class="two-col">
         <div class="box">
           <div class="box-header">
@@ -628,7 +628,7 @@ export function generatePdfReport({
                 ? detectedSections
                     .map(
                       (sec) =>
-                        `<span class="pill pill-success">✓ ${escapeHtml(sec)}</span>`
+                        `<span class="pill pill-success">[Matched] ${escapeHtml(sec)}</span>`
                     )
                     .join("")
                 : '<span style="color:#94a3b8; font-size:11px;">No standard sections identified.</span>'
@@ -649,10 +649,10 @@ export function generatePdfReport({
                 ? missingSections
                     .map(
                       (sec) =>
-                        `<span class="pill pill-danger">✗ ${escapeHtml(sec)}</span>`
+                        `<span class="pill pill-danger">[Missing] ${escapeHtml(sec)}</span>`
                     )
                     .join("")
-                : '<span class="pill pill-success">✓ All primary sections present!</span>'
+                : '<span class="pill pill-success">All primary sections present.</span>'
             }
           </div>
         </div>
@@ -668,16 +668,16 @@ export function generatePdfReport({
         </div>
         <div class="pill-list">
           <span class="pill ${contactDetails.hasEmail ? "pill-success" : "pill-danger"}">
-            ${contactDetails.hasEmail ? `✓ Email: ${escapeHtml(contactDetails.email || "Present")}` : "✗ Email Missing"}
+            ${contactDetails.hasEmail ? `Email: ${escapeHtml(contactDetails.email || "Present")}` : "Email Missing"}
           </span>
           <span class="pill ${contactDetails.hasPhone ? "pill-success" : "pill-danger"}">
-            ${contactDetails.hasPhone ? `✓ Phone: ${escapeHtml(contactDetails.phone || "Present")}` : "✗ Phone Missing"}
+            ${contactDetails.hasPhone ? `Phone: ${escapeHtml(contactDetails.phone || "Present")}` : "Phone Missing"}
           </span>
           <span class="pill ${contactDetails.hasLinkedIn ? "pill-success" : "pill-info"}">
-            ${contactDetails.hasLinkedIn ? "✓ LinkedIn Profile Detected" : "○ LinkedIn Optional"}
+            ${contactDetails.hasLinkedIn ? "LinkedIn Profile Detected" : "LinkedIn Optional"}
           </span>
           <span class="pill ${contactDetails.hasPortfolio ? "pill-success" : "pill-info"}">
-            ${contactDetails.hasPortfolio ? "✓ Portfolio / GitHub Detected" : "○ Portfolio Optional"}
+            ${contactDetails.hasPortfolio ? "Portfolio / GitHub Detected" : "Portfolio Optional"}
           </span>
         </div>
       </div>
@@ -685,7 +685,7 @@ export function generatePdfReport({
 
     <!-- Keyword & Skill Gap Analysis -->
     <div class="avoid-break">
-      <h2 class="section-title">🎯 Keywords & Skill Gap Analysis</h2>
+      <h2 class="section-title">Keywords & Skill Gap Analysis</h2>
       <div class="two-col">
         <div class="box">
           <div class="box-header">
@@ -698,7 +698,7 @@ export function generatePdfReport({
                 ? allMatchingKeywords
                     .map(
                       (kw) =>
-                        `<span class="pill pill-success">✓ ${escapeHtml(kw)}</span>`
+                        `<span class="pill pill-success">[Matched] ${escapeHtml(kw)}</span>`
                     )
                     .join("")
                 : '<span style="color:#94a3b8; font-size:11px;">No specific keyword matches found.</span>'
@@ -719,10 +719,10 @@ export function generatePdfReport({
                 ? allMissingKeywords
                     .map(
                       (kw) =>
-                        `<span class="pill pill-danger">✗ ${escapeHtml(kw)}</span>`
+                        `<span class="pill pill-danger">[Missing] ${escapeHtml(kw)}</span>`
                     )
                     .join("")
-                : '<span class="pill pill-success">✓ No critical keyword gaps identified!</span>'
+                : '<span class="pill pill-success">No critical keyword gaps identified.</span>'
             }
           </div>
         </div>
@@ -734,7 +734,7 @@ export function generatePdfReport({
       priorityActionItems.length > 0
         ? `
     <div class="avoid-break">
-      <h2 class="section-title">🚨 Priority Action Items</h2>
+      <h2 class="section-title">Priority Action Items</h2>
       <ul class="action-list">
         ${priorityActionItems
           .map((item) => {
@@ -775,11 +775,11 @@ export function generatePdfReport({
       strengths.length > 0
         ? `
     <div class="avoid-break">
-      <h2 class="section-title">⭐ Detected Resume Strengths</h2>
+      <h2 class="section-title">Detected Resume Strengths</h2>
       <div class="strength-list">
         ${strengths
           .map(
-            (s) => `<div class="strength-item">✓ ${escapeHtml(s)}</div>`
+            (s) => `<div class="strength-item">${escapeHtml(s)}</div>`
           )
           .join("")}
       </div>
@@ -793,7 +793,7 @@ export function generatePdfReport({
       weakVerbsFound.length > 0 || suggestedPowerVerbs.length > 0
         ? `
     <div class="avoid-break">
-      <h2 class="section-title">⚡ Action Verbs & Impact Optimization</h2>
+      <h2 class="section-title">Action Verbs & Impact Optimization</h2>
       <div class="verb-grid">
         <div class="verb-box" style="background:#fff5f5; border-color:#fecaca;">
           <div style="font-size:11px; font-weight:700; color:#991b1b; margin-bottom:6px;">
@@ -808,7 +808,7 @@ export function generatePdfReport({
                         `<span class="pill pill-danger">"${escapeHtml(v)}"</span>`
                     )
                     .join("")
-                : '<span style="font-size:11px; color:#059669;">✓ No weak passive verbs detected!</span>'
+                : '<span style="font-size:11px; color:#059669;">No weak passive verbs detected.</span>'
             }
           </div>
         </div>
@@ -834,7 +834,7 @@ export function generatePdfReport({
       </div>
       <div class="box" style="background:#f8fafc; font-size:11px; margin-bottom:16px;">
         <strong>Google XYZ Bullet Formula:</strong>
-        <em>"Accomplished [X] as measured by [Y], by doing [Z]"</em> — Replace descriptive duties with quantifiable achievements (e.g. <em>"Reduced API latency by 35% through Redis caching"</em> instead of <em>"Worked on caching"</em>).
+        <em>"Accomplished [X] as measured by [Y], by doing [Z]"</em> - Replace descriptive duties with quantifiable achievements (e.g. <em>"Reduced API latency by 35% through Redis caching"</em> instead of <em>"Worked on caching"</em>).
       </div>
     </div>
     `
@@ -846,7 +846,7 @@ export function generatePdfReport({
       formattingConcerns.length > 0
         ? `
     <div class="avoid-break">
-      <h2 class="section-title">⚠️ Formatting & Parsing Warnings</h2>
+      <h2 class="section-title">Formatting & Parsing Warnings</h2>
       <ul class="action-list">
         ${formattingConcerns
           .map(
@@ -868,7 +868,7 @@ export function generatePdfReport({
       categories.length > 0
         ? `
     <div class="avoid-break">
-      <h2 class="section-title">📝 Targeted Improvement Plan</h2>
+      <h2 class="section-title">Targeted Improvement Plan</h2>
       ${categories
         .map(
           (cat) => `
